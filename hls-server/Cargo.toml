@@ -1,0 +1,11 @@
+[package]
+name = "hls-server"
+version = "0.1.0"
+authors = ["0zark <siddhant@hey.com>"]
+edition = "2018"
+
+[dependencies]
+
+tide = "0.13.0"
+async-std = { version = "1.6.3", features = ["attributes"] }
+m3u8-rs = "1.0.7"
