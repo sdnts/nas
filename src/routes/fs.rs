@@ -1,31 +1,21 @@
+use anyhow::Result;
 use std::fs;
-use std::path::Path;
 
 use crate::error::NASError;
-
-const ROOT: &str = "/home/ozark/nas";
+use crate::path::NASPath;
 
 pub(crate) async fn get(req: tide::Request<()>) -> Result<String, tide::Error> {
     let relative_path = req.param::<String>("file").unwrap_or(String::from("/"));
-    let relative_path = percent_encoding::percent_decode_str(&relative_path).decode_utf8()?;
-
-    let path = Path::new(ROOT).join(&*relative_path);
-    let path = path
-        .to_str()
-        .ok_or(NASError::InvalidPathError(relative_path.to_string()))?;
+    let path = NASPath::from_relative_path_str(&relative_path)?;
+    let path = path.to_absolute_path_str()?;
 
     let contents =
         fs::read_dir(&path).map_err(|e| NASError::DirectoryNotFoundError(e.to_string()))?;
     let contents: Result<Vec<_>, _> = contents
-        .map(move |f| -> Result<String, NASError> {
+        .map(move |f| -> Result<String> {
             let file = f.map_err(|e| NASError::UnknownError(e.to_string()))?;
-            let file = file.path();
-            let file = file
-                .strip_prefix(&ROOT)
-                .map_err(|_| NASError::UnknownError("Could not strip FS prefix".to_string()))?;
-            let file = file
-                .to_str()
-                .ok_or(NASError::InvalidPathError("".to_string()))?;
+            let file = NASPath::from_pathbuf(file.path());
+            let file = file.to_relative_path_str()?;
 
             Ok(file.to_string())
         })
@@ -34,4 +24,12 @@ pub(crate) async fn get(req: tide::Request<()>) -> Result<String, tide::Error> {
     let contents = contents.map_err(|e| NASError::UnknownError(e.to_string()));
 
     Ok(format!("{:?}", contents))
+}
+
+pub(crate) async fn post(_: tide::Request<()>) -> Result<tide::Response, tide::Error> {
+    Ok(tide::Response::builder(200).build())
+}
+
+pub(crate) async fn delete(_: tide::Request<()>) -> Result<tide::Response, tide::Error> {
+    Ok(tide::Response::builder(200).build())
 }

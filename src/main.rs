@@ -1,10 +1,18 @@
+use askama::Template;
 use flate2::write::GzEncoder;
 use flate2::Compression;
 use std::io::prelude::*;
+use std::path::Path;
 
 mod error;
+mod path;
 mod routes;
-mod templates;
+
+#[derive(Template)]
+#[template(path = "index.html")]
+struct T {
+    name: String,
+}
 
 #[async_std::main]
 async fn main() -> Result<(), std::io::Error> {
@@ -12,86 +20,26 @@ async fn main() -> Result<(), std::io::Error> {
 
     let mut app = tide::new();
 
-    app.at("/fs/*file").get(routes::fs::get);
+    app.with(tide::sessions::SessionMiddleware::new(
+        tide::sessions::MemoryStore::new(),
+        dotenv::var("NAS_COOKIE_SECRET").unwrap().as_bytes(),
+    ));
 
+    app.at("/").serve_dir(Path::new("public/"))?;
     app.at("/").get(|_| async {
-        Ok(tide::Response::builder(200)
-            .body(
-                "
-        <html>
-            <head>
-                <meta charset=\"UTF-8\">
-            </head>
-            <body>
-                <script src=\"//cdn.jsdelivr.net/npm/hls.js@latest\"></script>
-                <video id=\"video\" width=\"1280\" height=\"720\" controls></video>
-                <script>
-                    if (Hls.isSupported()) {
-                        var video = document.getElementById('video');
-                        var hls = new Hls({ debug: true });
-                        hls.loadSource(`bbb.m3u8`);
-                        hls.attachMedia(video);
-                        hls.on(Hls.Events.MEDIA_ATTACHED, function() {
-                            video.play();
-                        });
-                        hls.on(Hls.Events.ERROR, function (event, data) {
-                            console.log(`Error in stream`, event, data)
-                        });
-                    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                        video.src = 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8';
-                        video.addEventListener('canplay',function() {
-                            video.play();
-                        });
-                    }
-                </script>
-            </body>
-        </html>
-        ",
-            )
-            .header("Content-Type", "text/html")
-            .build())
+        let t = T {
+            name: "0zark".to_string(),
+        };
+        let res = t.render().unwrap();
+
+        Ok(tide::Response::builder(200).body(res).build())
     });
 
-    app.at("/bbb.m3u8").get(|_| async move {
-        let path = std::path::Path::new("/home/ozark/Video/hls/index.m3u8");
+    app.at("/api/fs/*file").get(routes::fs::get);
+    app.at("/api/fs/*file").post(routes::fs::post);
+    app.at("/api/fs/*file").delete(routes::fs::delete);
 
-        let mut file = std::fs::File::open(path)?;
-        let mut bytes = Vec::new();
-        file.read_to_end(&mut bytes).unwrap();
-
-        let response = tide::Response::builder(200)
-            .body(bytes)
-            .header("Access-Control-Allow-Origin", "*")
-            .header("Access-Control-Allow-Headers", "Range")
-            .header("Access-Control-Expose-Headers", "Content-Length")
-            .header("Content-Type", "application/vnd.apple.mpegurl");
-        Ok(response.build())
-    });
-
-    app.at("/static").serve_dir("/home/ozark/Video/hls")?;
-
-    app.at("/:file").get(|req: tide::Request<()>| async move {
-        let filename: String = req.param("file")?;
-        let path = std::path::Path::new("/home/ozark/Video/hls").join(&filename);
-
-        let mut file = std::fs::File::open(path)?;
-        let mut bytes = Vec::new();
-        file.read_to_end(&mut bytes)?;
-
-        let mut encoder = GzEncoder::new(Vec::new(), Compression::default());
-        encoder.write_all(&bytes)?;
-        let bytes = encoder.finish()?;
-
-        let response = tide::Response::builder(200)
-            .body(bytes)
-            .header("Access-Control-Allow-Origin", "*")
-            .header("Content-Encoding", "gzip")
-            .header("Access-Control-Expose-Headers", "Content-Length")
-            .header("Access-Control-Allow-Headers", "Range")
-            .header("Content-Type", "application/octet-stream");
-
-        Ok(response.build())
-    });
+    app.at("/api/stream/*file").get(routes::stream::get);
 
     app.listen("0.0.0.0:8080").await?;
     Ok(())
