@@ -1,18 +1,8 @@
-use askama::Template;
-use flate2::write::GzEncoder;
-use flate2::Compression;
-use std::io::prelude::*;
 use std::path::Path;
 
 mod error;
 mod path;
 mod routes;
-
-#[derive(Template)]
-#[template(path = "index.html")]
-struct T {
-    name: String,
-}
 
 #[async_std::main]
 async fn main() -> Result<(), std::io::Error> {
@@ -25,22 +15,19 @@ async fn main() -> Result<(), std::io::Error> {
         dotenv::var("NAS_COOKIE_SECRET").unwrap().as_bytes(),
     ));
 
-    app.at("/").serve_dir(Path::new("public/"))?;
-    app.at("/").get(|_| async {
-        let t = T {
-            name: "0zark".to_string(),
-        };
-        let res = t.render().unwrap();
+    app.at("/api/fs/").get(routes::fs::get);
+    app.at("/api/fs/*filename").get(routes::fs::get);
+    app.at("/api/fs/*filename").post(routes::fs::post);
+    app.at("/api/fs/*filename").delete(routes::fs::delete);
 
-        Ok(tide::Response::builder(200).body(res).build())
-    });
+    app.at("/api/stream/*filename").get(routes::stream::get);
 
-    app.at("/api/fs/*file").get(routes::fs::get);
-    app.at("/api/fs/*file").post(routes::fs::post);
-    app.at("/api/fs/*file").delete(routes::fs::delete);
+    app.at("/").get(routes::index::get);
+    app.at("/*path").get(routes::index::get);
 
-    app.at("/api/stream/*file").get(routes::stream::get);
+    app.at("/public").serve_dir(Path::new("public/"))?;
 
     app.listen("0.0.0.0:8080").await?;
+
     Ok(())
 }

@@ -1,1 +1,28 @@
-Hello, {{ name }}!
+<html>
+  <head>
+    <title>NAS by 0zark</title>
+  </head>
+
+  <style>
+    @font-face {
+      font-family: "OpenSans-Regular";
+      src: url("public/OpenSans-Regular.ttf");
+    }
+
+    body {
+      background-color: black;
+      color: white;
+      font-family: "OpenSans-Regular";
+    }
+  </style>
+
+  <body>
+    Hello, {{ name }}
+
+    <ul>
+      {% for file in file_list %}
+      <li><a href="/{{ file }}">{{file}}</a></li>
+      {% endfor %}
+    </ul>
+  </body>
+</html>

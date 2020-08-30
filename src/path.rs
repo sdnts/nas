@@ -28,7 +28,7 @@ impl NASPath {
 
     pub fn to_relative_path_str(&self) -> Result<&str> {
         let path = self
-            .path
+            .to_pathbuf()
             .strip_prefix(&ROOT)
             .map_err(|_| NASError::UnknownError("Could not strip FS prefix".to_string()))?;
 

@@ -5,7 +5,7 @@ use crate::error::NASError;
 use crate::path::NASPath;
 
 pub(crate) async fn get(req: tide::Request<()>) -> Result<String, tide::Error> {
-    let relative_path = req.param::<String>("file").unwrap_or(String::from("/"));
+    let relative_path: String = req.param("filename").unwrap_or_default();
     let path = NASPath::from_relative_path_str(&relative_path)?;
     let path = path.to_absolute_path_str()?;
 
@@ -21,15 +21,15 @@ pub(crate) async fn get(req: tide::Request<()>) -> Result<String, tide::Error> {
         })
         .collect();
 
-    let contents = contents.map_err(|e| NASError::UnknownError(e.to_string()));
+    let contents = contents.map_err(|e| NASError::UnknownError(e.to_string()))?;
 
     Ok(format!("{:?}", contents))
 }
 
 pub(crate) async fn post(_: tide::Request<()>) -> Result<tide::Response, tide::Error> {
-    Ok(tide::Response::builder(200).build())
+    unimplemented!()
 }
 
 pub(crate) async fn delete(_: tide::Request<()>) -> Result<tide::Response, tide::Error> {
-    Ok(tide::Response::builder(200).build())
+    unimplemented!()
 }
