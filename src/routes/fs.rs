@@ -14,18 +14,24 @@ pub(crate) async fn get(req: tide::Request<()>) -> Result<String, tide::Error> {
         .to_str()
         .ok_or(NASError::InvalidPathError(relative_path.to_string()))?;
 
-    let contents = fs::read_dir(&path).map_err(|e| e)?;
-    let contents = contents
-        .map(move |f| {
-            let file = f.unwrap();
+    let contents =
+        fs::read_dir(&path).map_err(|e| NASError::DirectoryNotFoundError(e.to_string()))?;
+    let contents: Result<Vec<_>, _> = contents
+        .map(move |f| -> Result<String, NASError> {
+            let file = f.map_err(|e| NASError::UnknownError(e.to_string()))?;
             let file = file.path();
             let file = file
                 .strip_prefix(&ROOT)
-                // .map_err(|_| NASError::UnknownError("Could not strip FS prefix".to_string()))?;
-                .unwrap();
-            file.to_str().unwrap().to_string()
+                .map_err(|_| NASError::UnknownError("Could not strip FS prefix".to_string()))?;
+            let file = file
+                .to_str()
+                .ok_or(NASError::InvalidPathError("".to_string()))?;
+
+            Ok(file.to_string())
         })
-        .collect::<Vec<String>>();
+        .collect();
+
+    let contents = contents.map_err(|e| NASError::UnknownError(e.to_string()));
 
     Ok(format!("{:?}", contents))
 }
