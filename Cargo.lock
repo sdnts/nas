@@ -1249,6 +1249,7 @@ dependencies = [
  "async-std",
  "dotenv",
  "flate2",
+ "lazy_static",
  "percent-encoding",
  "tide",
 ]

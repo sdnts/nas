@@ -8,18 +8,21 @@
     <video id="video" width="1280" height="720" controls></video>
     <script>
       if (Hls.isSupported()) {
-        var video = document.getElementById("video");
-        var hls = new Hls({ debug: true });
-        hls.loadSource(`api/stream/Movies/Big%20Buck%20Bunny/playlist.m3u8`);
+        const video = document.getElementById("video");
+        const hls = new Hls({ debug: true });
+
+        hls.loadSource("{{ src }}");
         hls.attachMedia(video);
+
         hls.on(Hls.Events.MEDIA_ATTACHED, function () {
           video.play();
         });
+
         hls.on(Hls.Events.ERROR, function (event, data) {
-          console.log(`Error in stream`, event, data);
+          console.log("Error in stream", event, data);
         });
       } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-        video.src = "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8";
+        video.src = "{{ src }}";
         video.addEventListener("canplay", function () {
           video.play();
         });

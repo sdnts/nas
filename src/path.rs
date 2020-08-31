@@ -4,7 +4,7 @@ use std::path;
 use crate::error::NASError;
 
 const ROOT: &str = "/home/ozark/nas";
-
+#[derive(Debug)]
 pub struct NASPath {
     path: std::path::PathBuf,
 }

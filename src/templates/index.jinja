@@ -6,7 +6,7 @@
   <style>
     @font-face {
       font-family: "OpenSans-Regular";
-      src: url("public/OpenSans-Regular.ttf");
+      src: url("/public/OpenSans-Regular.ttf");
     }
 
     body {
@@ -21,7 +21,7 @@
 
     <ul>
       {% for file in file_list %}
-      <li><a href="/{{ file }}">{{file}}</a></li>
+      <li><a href="/fs/{{ file }}">{{file}}</a></li>
       {% endfor %}
     </ul>
   </body>

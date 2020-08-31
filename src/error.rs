@@ -5,6 +5,7 @@ pub(crate) enum NASError {
     // FileNotFoundError(String),
     DirectoryNotFoundError(String),
     InvalidPathError(String),
+    InvalidExtensionError(String),
 
     InvalidStreamPlaylist(String),
     MissingStreamPlaylist,
@@ -18,6 +19,9 @@ impl fmt::Display for NASError {
             // NASError::FileNotFoundError(file) => write!(f, "File was not found: {}", file)?,
             NASError::DirectoryNotFoundError(dir) => write!(f, "Directory was not found: {}", dir)?,
             NASError::InvalidPathError(path) => write!(f, "Invalid path: {}", path)?,
+            NASError::InvalidExtensionError(path) => {
+                write!(f, "Invalid extension for path: {}", path)?
+            }
 
             NASError::InvalidStreamPlaylist(playlist) => {
                 write!(f, "Invalid stream playlist: {}", playlist)?
