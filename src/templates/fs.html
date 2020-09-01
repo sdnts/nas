@@ -1,0 +1,42 @@
+<html>
+  <head>
+    <title>{{ name }}'s NAS</title>
+
+    <link rel="stylesheet" href="/public/styles/common.css" />
+    <link rel="stylesheet" href="/public/styles/dark.css" />
+    <link rel="stylesheet" href="/public/styles/fs.css" />
+  </head>
+
+  <body>
+    <header>
+      <span id="title">/fs</span>
+      <span id="user">{{ name }}</span>
+    </header>
+
+    <main>
+      <section id="breadcrumbs">
+        <span class="breadcrumbs__dir-name">TV</span>
+        <span class="breadcrumbs__separator">🢒</span>
+
+        <span class="breadcrumbs__dir-name">Avatar: The Last Airbender</span>
+        <span class="breadcrumbs__separator">🢒</span>
+
+        <span class="breadcrumbs__dir-name">Season 1</span
+        ><span class="breadcrumbs__separator">🢒</span>
+      </section>
+
+      <section id="content">
+        <ul id="file-list">
+          {% for file in file_list %}
+          <li class="file-list__item" title="{{ file }}">
+            <img class="file-list__item__icon" src="/public/icons/dir.svg" />
+            <a class="file-list__item__name" href="/fs/{{ file }}">{{file}}</a>
+            <span class="file-list__item__type">mkv</span>
+            <span class="file-list__item__size">100KiB</span>
+          </li>
+          {% endfor %}
+        </ul>
+      </section>
+    </main>
+  </body>
+</html>

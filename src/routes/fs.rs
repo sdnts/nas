@@ -6,20 +6,21 @@ use crate::error::NASError;
 use crate::path::NASPath;
 
 #[derive(Template, Debug)]
-#[template(path = "index.jinja")]
+#[template(path = "fs.html")]
 struct FileListPage {
     name: String,
     file_list: Vec<String>,
 }
 
 #[derive(Template, Debug)]
-#[template(path = "stream.jinja", escape = "none")]
+#[template(path = "stream.html", escape = "none")]
 struct StreamPage {
+    name: String,
     src: String,
 }
 
 #[derive(Template, Debug)]
-#[template(path = "400.jinja")]
+#[template(path = "400.html")]
 struct BadRequestPage {}
 
 pub(crate) async fn get(req: tide::Request<()>) -> Result<tide::Response, tide::Error> {
@@ -65,6 +66,7 @@ pub(crate) async fn get(req: tide::Request<()>) -> Result<tide::Response, tide::
                 "m3u8" => {
                     // For stream playlist files, render the stream page
                     let page = StreamPage {
+                        name: "0zark".to_string(),
                         src: format!("/stream/{}", path),
                     };
                     page.render()?

@@ -1,0 +1,24 @@
+<html>
+  <head>
+    <title>{{ name }}'s NAS</title>
+
+    <link rel="stylesheet" href="/public/styles/common.css" />
+    <link rel="stylesheet" href="/public/styles/dark.css" />
+    <link rel="stylesheet" href="/public/styles/stream.css" />
+  </head>
+
+  <body>
+    <video id="video" controls></video>
+
+    <section id="video-hover">
+      <button id="back-btn">🢐 Back</button>
+      <div id="video-title">S01E03.Zuko.Alone</div>
+    </section>
+
+    <script>
+      window.streamSrc = "{{ src }}";
+    </script>
+    <script src="//cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script src="/public/scripts/stream.js"></script>
+  </body>
+</html>

@@ -1,0 +1,44 @@
+body {
+  padding: 0;
+  position: relative;
+}
+
+video {
+  width: inherit;
+  height: inherit;
+  object-fit: contain;
+}
+
+body:hover #video-hover {
+  opacity: 1;
+  transition: all 0s; /* Show immediately */
+}
+
+#video-hover {
+  transition: all 1s; /* Hide slowly */
+  opacity: 0;
+  display: flex;
+  align-items: flex-start;
+  background-color: rgba(0, 0, 0, 0.3);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: inherit;
+  height: inherit;
+  padding: 40px;
+}
+
+#back-btn {
+  flex: 0 0 160px;
+  text-align: left;
+  border: none;
+  background: transparent;
+  font-size: var(--font-size-title);
+  color: var(--secondary-text-color);
+  cursor: pointer;
+}
+
+#video-title {
+  flex: 1;
+  font-size: var(--font-size-title);
+}
