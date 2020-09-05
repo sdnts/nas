@@ -1,12 +1,13 @@
+use anyhow::Result;
 use std::path::Path;
 
 mod error;
 mod file;
-mod path;
+mod file_type;
 mod routes;
 
 #[async_std::main]
-async fn main() -> Result<(), std::io::Error> {
+async fn main() -> Result<()> {
     tide::log::start();
 
     let mut app = tide::new();
