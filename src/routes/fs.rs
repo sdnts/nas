@@ -3,7 +3,7 @@ use askama::Template;
 use std::fs;
 
 use crate::error::NASError;
-use crate::path::NASPath;
+use crate::file::{NASFile, NASFileType};
 
 #[derive(Template, Debug)]
 #[template(path = "fs.html")]
@@ -26,20 +26,23 @@ struct BadRequestPage {}
 pub(crate) async fn get(req: tide::Request<()>) -> Result<tide::Response, tide::Error> {
     let path: String = req.param("path").unwrap_or_default();
 
-    let nas_path = NASPath::from_relative_path_str(&path)?;
-    let absolute_path = nas_path.to_absolute_path_str()?;
-    let nas_pathbuf = nas_path.to_pathbuf();
+    let nas_file = NASFile::from_relative_path_str(&path)?;
+    let nas_path = nas_file.path;
 
-    let page = {
-        if nas_pathbuf.is_dir() {
+    let response_body = {
+        if nas_path.is_dir() {
             // For directories, render the file list page
 
-            let contents = fs::read_dir(&absolute_path)
-                .map_err(|e| NASError::DirectoryNotFoundError(e.to_string()))?;
+            let contents =
+                fs::read_dir(&nas_path).map_err(|e| NASError::FileNotFoundError(e.to_string()))?;
             let file_list: Result<Vec<_>, _> = contents
                 .map(move |f| -> Result<String> {
                     let file = f.map_err(|e| NASError::UnknownError(e.to_string()))?;
-                    let file = NASPath::from_pathbuf(file.path());
+                    let path = file.path();
+                    let path = path.to_str().ok_or(NASError::InvalidPathError(
+                        "File path is not valid unicode".to_string(),
+                    ))?;
+                    let file = NASFile::from_absolute_path_str(path)?;
                     let file = file.to_relative_path_str()?;
                     Ok(file.to_string())
                 })
@@ -54,17 +57,8 @@ pub(crate) async fn get(req: tide::Request<()>) -> Result<tide::Response, tide::
         } else {
             // For files
 
-            let extension = nas_path
-                .to_pathbuf()
-                .extension()
-                .ok_or(NASError::InvalidExtensionError(path.clone()))?;
-            let extension = extension
-                .to_str()
-                .ok_or(NASError::InvalidExtensionError(path.clone()))?;
-
-            match extension {
-                "m3u8" => {
-                    // For stream playlist files, render the stream page
+            match nas_file.file_type {
+                NASFileType::StreamPlaylist => {
                     let page = StreamPage {
                         name: "0zark".to_string(),
                         src: format!("/stream/{}", path),
@@ -81,7 +75,7 @@ pub(crate) async fn get(req: tide::Request<()>) -> Result<tide::Response, tide::
     };
 
     let response = tide::Response::builder(200)
-        .body(page)
+        .body(response_body)
         .content_type("text/html;charset=utf-8")
         .build();
 

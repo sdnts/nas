@@ -2,8 +2,7 @@ use std::fmt;
 
 #[derive(Debug)]
 pub(crate) enum NASError {
-    // FileNotFoundError(String),
-    DirectoryNotFoundError(String),
+    FileNotFoundError(String),
     InvalidPathError(String),
     InvalidExtensionError(String),
 
@@ -16,8 +15,7 @@ pub(crate) enum NASError {
 impl fmt::Display for NASError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         match &self {
-            // NASError::FileNotFoundError(file) => write!(f, "File was not found: {}", file)?,
-            NASError::DirectoryNotFoundError(dir) => write!(f, "Directory was not found: {}", dir)?,
+            NASError::FileNotFoundError(file) => write!(f, "File was not found: {}", file)?,
             NASError::InvalidPathError(path) => write!(f, "Invalid path: {}", path)?,
             NASError::InvalidExtensionError(path) => {
                 write!(f, "Invalid extension for path: {}", path)?
