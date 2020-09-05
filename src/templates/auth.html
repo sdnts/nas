@@ -1,0 +1,35 @@
+<html>
+  <head>
+    <meta charset="UTF-8" />
+
+    <title>{{ name }}'s NAS</title>
+
+    <link rel="stylesheet" href="/public/styles/common.css" />
+    <link rel="stylesheet" href="/public/styles/dark.css" />
+    <link rel="stylesheet" href="/public/styles/auth.css" />
+  </head>
+
+  <body>
+    <header>
+      <span id="title">/auth</span>
+    </header>
+
+    <main>
+      <section id="section__title">
+        <span> {{ name }}'s NAS</span>
+      </section>
+
+      <section id="form">
+        <form action="/auth" method="POST">
+          <input class="input" type="text" name="username" />
+          <input class="input" type="password" name="password" />
+
+          <div id="submit-btn">
+            <input class="btn" type="submit" value="" />
+            <img id="submit-btn__icon" src="/public/icons/go.svg" />
+          </div>
+        </form>
+      </section>
+    </main>
+  </body>
+</html>

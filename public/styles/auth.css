@@ -1,0 +1,48 @@
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#section__title {
+  font-size: var(--font-size-title);
+}
+
+#form {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.input {
+  width: 260px;
+  margin: 10px 0;
+}
+
+#submit-btn {
+  position: relative;
+  cursor: pointer;
+}
+
+#submit-btn__icon {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+  color: var(--background-color);
+}
+
+.btn {
+  width: 100px;
+  margin: 10px 0;
+}
