@@ -40,8 +40,6 @@ form {
   right: 0;
   margin: auto;
   background-color: var(--background-color);
-  -webkit-mask: url(/public/icons/go.svg) no-repeat center;
-  mask: url(/public/icons/go.svg) no-repeat center;
 }
 
 .button {

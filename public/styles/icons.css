@@ -1,0 +1,48 @@
+.icon[data-icon="none"] {
+  background-color: var(--background-color);
+}
+
+.icon[data-icon="dir"] {
+  -webkit-mask: url(/public/icons/dir.svg) no-repeat center;
+  mask: url(/public/icons/dir.svg) no-repeat center;
+}
+
+.icon[data-icon="document"] {
+  -webkit-mask: url(/public/icons/document.svg) no-repeat center;
+  mask: url(/public/icons/document.svg) no-repeat center;
+}
+
+.icon[data-icon="go"] {
+  -webkit-mask: url(/public/icons/go.svg) no-repeat center;
+  mask: url(/public/icons/go.svg) no-repeat center;
+}
+
+.icon[data-icon="image"] {
+  -webkit-mask: url(/public/icons/image.svg) no-repeat center;
+  mask: url(/public/icons/image.svg) no-repeat center;
+}
+
+.icon[data-icon="music"] {
+  -webkit-mask: url(/public/icons/music.svg) no-repeat center;
+  mask: url(/public/icons/music.svg) no-repeat center;
+}
+
+.icon[data-icon="pause"] {
+  -webkit-mask: url(/public/icons/pause.svg) no-repeat center;
+  mask: url(/public/icons/pause.svg) no-repeat center;
+}
+
+.icon[data-icon="play"] {
+  -webkit-mask: url(/public/icons/play.svg) no-repeat center;
+  mask: url(/public/icons/play.svg) no-repeat center;
+}
+
+.icon[data-icon="plus"] {
+  -webkit-mask: url(/public/icons/plus.svg) no-repeat center;
+  mask: url(/public/icons/plus.svg) no-repeat center;
+}
+
+.icon[data-icon="video"] {
+  -webkit-mask: url(/public/icons/video.svg) no-repeat center;
+  mask: url(/public/icons/video.svg) no-repeat center;
+}
