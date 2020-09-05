@@ -4,24 +4,7 @@ use std::fs;
 
 use crate::error::NASError;
 use crate::file::{NASFile, NASFileType};
-
-#[derive(Template, Debug)]
-#[template(path = "fs.html")]
-struct FileListPage {
-    name: String,
-    file_list: Vec<String>,
-}
-
-#[derive(Template, Debug)]
-#[template(path = "stream.html", escape = "none")]
-struct StreamPage {
-    name: String,
-    src: String,
-}
-
-#[derive(Template, Debug)]
-#[template(path = "400.html")]
-struct BadRequestPage {}
+use crate::templates::{BadRequestPage, FileListPage, StreamPage};
 
 pub(crate) async fn get(req: tide::Request<()>) -> Result<tide::Response, tide::Error> {
     let path: String = req.param("path").unwrap_or_default();
@@ -80,6 +63,10 @@ pub(crate) async fn get(req: tide::Request<()>) -> Result<tide::Response, tide::
         .build();
 
     Ok(response)
+}
+
+pub(crate) async fn put(_: tide::Request<()>) -> Result<tide::Response, tide::Error> {
+    unimplemented!()
 }
 
 pub(crate) async fn post(_: tide::Request<()>) -> Result<tide::Response, tide::Error> {

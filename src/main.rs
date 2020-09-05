@@ -5,6 +5,7 @@ mod error;
 mod file;
 mod file_type;
 mod routes;
+mod templates;
 
 #[async_std::main]
 async fn main() -> Result<()> {
@@ -17,9 +18,13 @@ async fn main() -> Result<()> {
         dotenv::var("NAS_COOKIE_SECRET").unwrap().as_bytes(),
     ));
 
+    app.at("/auth").get(routes::auth::get);
+    app.at("/auth").post(routes::auth::post);
+
     app.at("/fs").get(routes::fs::get);
     app.at("/fs/*path").get(routes::fs::get);
     app.at("/fs/*path").post(routes::fs::post);
+    app.at("/fs/*path").put(routes::fs::put);
     app.at("/fs/*path").delete(routes::fs::delete);
 
     app.at("/stream/*path").get(routes::stream::get);
