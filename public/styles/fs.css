@@ -64,7 +64,7 @@ main {
   flex: 0 0 360px;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: var(--primary-text-color);
+  color: var(--primary-text-color) !important;
   text-decoration: none;
   margin-right: 40px;
 }

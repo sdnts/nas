@@ -8,7 +8,7 @@
     hls.attachMedia(video);
 
     hls.on(Hls.Events.MEDIA_ATTACHED, function () {
-      //   video.play();
+      video.play();
     });
 
     hls.on(Hls.Events.ERROR, function (event, data) {
