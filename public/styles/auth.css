@@ -27,22 +27,24 @@ form {
   margin: 10px 0;
 }
 
-#submit-btn {
+#submit-button {
   position: relative;
   cursor: pointer;
 }
 
-#submit-btn__icon {
+#submit-button__icon {
   position: absolute;
   top: 0;
   bottom: 0;
   left: 0;
   right: 0;
   margin: auto;
-  color: var(--background-color);
+  background-color: var(--background-color);
+  -webkit-mask: url(/public/icons/go.svg) no-repeat center;
+  mask: url(/public/icons/go.svg) no-repeat center;
 }
 
-.btn {
+.button {
   width: 100px;
   margin: 10px 0;
 }
