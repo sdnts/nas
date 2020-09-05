@@ -4,10 +4,6 @@ use std::fmt;
 pub(crate) enum NASError {
     FileNotFoundError(String),
     InvalidPathError(String),
-    InvalidExtensionError(String),
-
-    InvalidStreamPlaylist(String),
-    MissingStreamPlaylist,
 
     UnknownError(String),
 }
@@ -17,14 +13,6 @@ impl fmt::Display for NASError {
         match &self {
             NASError::FileNotFoundError(file) => write!(f, "File was not found: {}", file)?,
             NASError::InvalidPathError(path) => write!(f, "Invalid path: {}", path)?,
-            NASError::InvalidExtensionError(path) => {
-                write!(f, "Invalid extension for path: {}", path)?
-            }
-
-            NASError::InvalidStreamPlaylist(playlist) => {
-                write!(f, "Invalid stream playlist: {}", playlist)?
-            }
-            NASError::MissingStreamPlaylist => write!(f, "Missing stream playlist in session")?,
 
             NASError::UnknownError(msg) => write!(f, "An unknown error occurred: {}", msg)?,
         };
