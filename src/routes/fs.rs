@@ -67,25 +67,17 @@ pub(crate) async fn get(req: tide::Request<AppState>) -> Result<tide::Response, 
                 })
                 .collect();
 
-            // let page = FileListPage {
-            //     title: "/fs".to_string(),
-            //     hostname: "0zark".to_string(),
-            //     username: "0zark".to_string(),
-            //     breadcrumbs: breadcrumbs.unwrap_or_default(),
-            //     file_names: file_names.unwrap_or_default(),
-            //     file_sizes: file_sizes.unwrap_or_default(),
-            //     file_extensions: file_extensions.unwrap_or_default(),
-            //     file_types: vec![],
-            //     test: json!({
-            //         "x": "test"
-            //     }),
-            // };
             templates.render(
                 "fs",
                 &json!({
-                     "title": "/fs".to_string(),
+                    "title": "/fs".to_string(),
                     "hostname": "0zark".to_string(),
                     "username": "0zark".to_string(),
+                    "breadcrumbs": breadcrumbs.unwrap_or_default(),
+                    "file_names": file_names.unwrap_or_default(),
+                    "file_sizes": file_sizes.unwrap_or_default(),
+                    "file_extensions": file_extensions.unwrap_or_default(),
+                    // "file_types": vec![]
                 }),
             )?
         } else {

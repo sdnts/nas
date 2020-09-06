@@ -52,15 +52,15 @@
             <a class="file-list__item__name" href="/fs">..</a>
           </li>
 
-          {% for name in file_names %}
-          <li class="file-list__item" title="{{ name }}">
+          {{#each file_names}}
+          <li class="file-list__item" title="{{ this }}">
             <div class="icon file-list__item__icon" data-icon="dir"></div>
-            <a class="file-list__item__name" href="./{{ name }}">{{name}}</a>
+            <a class="file-list__item__name" href="./{{ this }}">{{ this }}</a>
             <span class="file-list__item__type"
-              >{{ file_extensions[loop.index0] }}</span
+              >mkv</span
             >
             <span class="file-list__item__size"
-              >{{ file_sizes[loop.index0] }}KiB</span
+              >0KiB</span
             >
 
             <button id="edit-button" class="icon button">
@@ -70,7 +70,7 @@
               <div class="icon" data-icon="cross"></div>
             </button>
           </li>
-          {% endfor %} {{ test["x"] }}
+          {{ /each }}
         </ul>
       </section>
     </main>

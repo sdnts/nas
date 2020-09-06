@@ -10,9 +10,9 @@ mod templates;
 
 #[async_std::main]
 async fn main() -> Result<()> {
-    // tide::log::start();
+    tide::log::start();
 
-    let mut state = app_state::AppState::new();
+    let state = app_state::AppState::new();
     let mut app = tide::with_state(state);
 
     app.with(tide::sessions::SessionMiddleware::new(
