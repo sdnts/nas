@@ -69,17 +69,13 @@ impl NASFile {
             .strip_prefix(&ROOT)
             .map_err(|_| NASError::UnknownError("Could not strip FS prefix".to_string()))?;
 
-        let path = path.to_str().ok_or(NASError::InvalidPathError(
-            "File path is not valid unicode".to_string(),
-        ))?;
+        let path = path.to_str().ok_or(NASError::UnsupportedPathError)?;
 
         Ok(path)
     }
 
     pub fn to_absolute_path_str(&self) -> Result<&str> {
-        let path = self.path.to_str().ok_or(NASError::InvalidPathError(
-            "File path is not valid unicode".to_string(),
-        ))?;
+        let path = self.path.to_str().ok_or(NASError::UnsupportedPathError)?;
 
         Ok(path)
     }

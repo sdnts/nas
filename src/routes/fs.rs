@@ -43,14 +43,19 @@ pub(crate) async fn get(req: tide::Request<()>) -> Result<tide::Response, tide::
             match nas_file.file_type {
                 NASFileType::StreamPlaylist => {
                     let page = StreamPage {
-                        name: "0zark".to_string(),
+                        hostname: "0zark".to_string(),
                         src: format!("/stream/{}", path),
+                        file_name: "S01E02".to_string(),
                     };
                     page.render()?
                 }
                 _ => {
                     // For everything else, render the 400 page
-                    let page = BadRequestPage {};
+                    let page = BadRequestPage {
+                        title: "/400".to_string(),
+                        hostname: "0zark".to_string(),
+                        username: "0zark".to_string(),
+                    };
                     page.render()?
                 }
             }
