@@ -1,35 +1,31 @@
-// #[derive(Template, Debug)]
-// #[template(path = "400.html")]
-pub struct BadRequestPage {
+use serde::Serialize;
+
+use crate::file::NASFile;
+
+#[derive(Serialize)]
+pub struct BadRequestPageParams {
     pub title: String,
     pub hostname: String,
     pub username: String,
 }
 
-// #[derive(Template, Debug)]
-// #[template(path = "auth.html")]
-pub struct AuthPage {
+#[derive(Serialize)]
+pub struct AuthPageParams {
     pub title: String,
     pub hostname: String,
 }
 
-// #[derive(Template, Debug)]
-// #[template(path = "fs.html")]
-pub struct FileListPage {
+#[derive(Serialize)]
+pub struct FileListPageParams {
     pub title: String,
     pub hostname: String,
     pub username: String,
     pub breadcrumbs: Vec<String>,
-    pub file_names: Vec<String>,
-    pub file_sizes: Vec<u64>,
-    pub file_extensions: Vec<String>,
-    pub file_types: Vec<String>,
-    pub test: serde_json::value::Value,
+    pub files: Vec<NASFile>,
 }
 
-// #[derive(Template, Debug)]
-// #[template(path = "stream.html", escape = "none")]
-pub struct StreamPage {
+#[derive(Serialize)]
+pub struct StreamPageParams {
     pub hostname: String,
     pub src: String,
     pub file_name: String,

@@ -1,17 +1,16 @@
 use anyhow::Result;
-use serde_json::json;
 
 use crate::app_state::AppState;
-use crate::templates::AuthPage;
+use crate::templates::AuthPageParams;
 
-pub(crate) async fn get(req: tide::Request<AppState>) -> Result<tide::Response, tide::Error> {
+pub async fn get(req: tide::Request<AppState>) -> Result<tide::Response, tide::Error> {
     let templates = req.state().clone().templates;
     let response_body = templates.render(
         "auth",
-        &json!({
-            "title": "/fs".to_string(),
-            "hostname": "0zark".to_string()
-        }),
+        &AuthPageParams {
+            title: "/auth".to_string(),
+            hostname: "0zark".to_string(),
+        },
     )?;
 
     let response = tide::Response::builder(200)
@@ -22,6 +21,6 @@ pub(crate) async fn get(req: tide::Request<AppState>) -> Result<tide::Response, 
     Ok(response)
 }
 
-pub(crate) async fn post(req: tide::Request<AppState>) -> Result<tide::Response, tide::Error> {
+pub async fn post(req: tide::Request<AppState>) -> Result<tide::Response, tide::Error> {
     unimplemented!()
 }

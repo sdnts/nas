@@ -1324,7 +1324,6 @@ dependencies = [
  "handlebars",
  "percent-encoding",
  "serde",
- "serde_json",
  "tide",
 ]
 

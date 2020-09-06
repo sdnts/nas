@@ -1,81 +1,74 @@
 <html>
-  <head>
-    <meta charset="UTF-8" />
 
-    <title>{{ hostname }}'s NAS</title>
+<head>
+  <meta charset="UTF-8" />
 
-    <link rel="stylesheet" href="/public/styles/common.css" />
-    <link rel="stylesheet" href="/public/styles/icons.css" />
-    <link rel="stylesheet" href="/public/styles/dark.css" />
-    <link rel="stylesheet" href="/public/styles/fs.css" />
-    <link rel="stylesheet" href="/public/styles/tooltip.css" />
-  </head>
+  <title>{{ hostname }}'s NAS</title>
 
-  <body>
-    <header>
-      <span id="title">/fs</span>
-      <span id="user">{{ username }}</span>
-    </header>
+  <link rel="stylesheet" href="/public/styles/common.css" />
+  <link rel="stylesheet" href="/public/styles/icons.css" />
+  <link rel="stylesheet" href="/public/styles/dark.css" />
+  <link rel="stylesheet" href="/public/styles/fs.css" />
+  <link rel="stylesheet" href="/public/styles/tooltip.css" />
+</head>
 
-    <main>
-      <section id="breadcrumbs">
-        {% for breadcrumb in breadcrumbs %}
-        <span class="breadcrumbs__dir-name">{{ breadcrumb }}</span>
-        <span class="breadcrumbs__separator">🢒</span>
-        {% endfor %}
-      </section>
+<body>
+  <header>
+    <span id="title">/fs</span>
+    <span id="user">{{ username }}</span>
+  </header>
 
-      <section id="toolbar" class="tooltip">
-        <button class="icon button">
-          <div class="icon" data-icon="plus"></div>
-        </button>
+  <main>
+    <section id="breadcrumbs">
+      {{#each breadcrumbs as |b|}}
+      <span class="breadcrumbs__dir-name">{{b}}</span>
+      <span class="breadcrumbs__separator">🢒</span>
+      {{/each}}
+    </section>
 
-        <ul>
-          <li onclick="addFile()">New File</li>
-          <li onclick="addDir()">New Folder</li>
-        </ul>
-      </section>
+    <section id="toolbar" class="tooltip">
+      <button class="icon button">
+        <div class="icon" data-icon="plus"></div>
+      </button>
 
-      <section id="content">
-        <ul id="file-list">
-          <form id="add-file" enctype="multipart/form-data">
-            <input
-              id="image-file"
-              type="file"
-              name="file"
-              onchange="upload()"
-            />
-          </form>
+      <ul>
+        <li onclick="addFile()">New File</li>
+        <li onclick="addDir()">New Folder</li>
+      </ul>
+    </section>
 
-          <li class="file-list__item" title="Parent">
-            <div class="icon file-list__item__icon" data-icon="none"></div>
-            <a class="file-list__item__name" href="/fs">..</a>
-          </li>
+    <section id="content">
+      <ul id="file-list">
+        <form id="add-file" enctype="multipart/form-data">
+          <input id="image-file" type="file" name="file" onchange="upload()" />
+        </form>
 
-          {{#each file_names}}
-          <li class="file-list__item" title="{{ this }}">
-            <div class="icon file-list__item__icon" data-icon="dir"></div>
-            <a class="file-list__item__name" href="./{{ this }}">{{ this }}</a>
-            <span class="file-list__item__type"
-              >mkv</span
-            >
-            <span class="file-list__item__size"
-              >0KiB</span
-            >
+        <li class="file-list__item" title="Parent">
+          <div class="icon file-list__item__icon" data-icon="none"></div>
+          <a class="file-list__item__name" href="/fs">..</a>
+        </li>
 
-            <button id="edit-button" class="icon button">
-              <div class="icon" data-icon="pencil"></div>
-            </button>
-            <button id="remove-button" class="icon button">
-              <div class="icon" data-icon="cross"></div>
-            </button>
-          </li>
-          {{ /each }}
-        </ul>
-      </section>
-    </main>
+        {{#each files as |file|}}
+        <li class="file-list__item" title="{{file.name}}">
+          <div class="icon file-list__item__icon" data-icon="dir"></div>
+          <a class="file-list__item__name" href="{{file.name}}">{{file.name}}</a>
+          <span class="file-list__item__type">{{file.extension}}</span>
+          <span class="file-list__item__size">0KiB</span>
 
-    <script src="/public/scripts/tooltip.js"></script>
-    <script src="/public/scripts/fs.js"></script>
-  </body>
+          <button id="edit-button" class="icon button">
+            <div class="icon" data-icon="pencil"></div>
+          </button>
+          <button id="remove-button" class="icon button">
+            <div class="icon" data-icon="cross"></div>
+          </button>
+        </li>
+        {{/each}}
+      </ul>
+    </section>
+  </main>
+
+  <script src="/public/scripts/tooltip.js"></script>
+  <script src="/public/scripts/fs.js"></script>
+</body>
+
 </html>

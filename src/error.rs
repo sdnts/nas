@@ -1,7 +1,7 @@
 use std::fmt;
 
 #[derive(Debug)]
-pub(crate) enum NASError {
+pub enum NASError {
     FileNotFoundError(String),
     InvalidPathError(String),
     UnsupportedPathError,

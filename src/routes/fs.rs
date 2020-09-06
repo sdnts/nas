@@ -1,106 +1,68 @@
 use anyhow::Result;
-use serde_json::json;
 use std::fs;
+use std::path::PathBuf;
 
 use crate::app_state::AppState;
 use crate::error::NASError;
-use crate::file::{NASFile, NASFileType};
-use crate::templates::{BadRequestPage, FileListPage, StreamPage};
+use crate::file::{NASFile, NASFileCategory};
+use crate::templates::{BadRequestPageParams, FileListPageParams, StreamPageParams};
 
-pub(crate) async fn get(req: tide::Request<AppState>) -> Result<tide::Response, tide::Error> {
+pub async fn get(req: tide::Request<AppState>) -> Result<tide::Response, tide::Error> {
     let templates = req.state().clone().templates;
     let path: String = req.param("path").unwrap_or_default();
 
     let nas_file = NASFile::from_relative_path_str(&path)?;
-    let nas_path = &nas_file.path;
 
     let response_body = {
-        if nas_path.is_dir() {
-            // For directories, render the file list page
+        match nas_file.category {
+            NASFileCategory::Directory => {
+                // For directories, render the file list page
+                let contents = fs::read_dir(&nas_file)
+                    .map_err(|e| NASError::FileNotFoundError(e.to_string()))?;
+                let files = contents
+                    .map(move |f| -> Result<NASFile> {
+                        let file = f.map_err(|e| NASError::UnknownError(e.to_string()))?;
+                        let file = NASFile::from_pathbuf(file.path())?;
+                        Ok(file)
+                    })
+                    .collect::<Result<Vec<NASFile>>>()?;
 
-            let breadcrumbs = nas_file.to_relative_path_str()?;
-            let breadcrumbs: Result<Vec<_>, _> = breadcrumbs
-                .split("/")
-                .map(|segment| -> Result<String> { Ok(segment.to_string()) })
-                .collect();
+                let breadcrumbs: PathBuf = nas_file.into();
+                let breadcrumbs = breadcrumbs
+                    .iter()
+                    .map(|component| -> Result<String> {
+                        let component = component.to_str().ok_or(NASError::UnsupportedPathError)?;
+                        Ok(component.to_string())
+                    })
+                    .collect::<Result<Vec<String>>>()?;
 
-            let contents =
-                fs::read_dir(&nas_path).map_err(|e| NASError::FileNotFoundError(e.to_string()))?;
-            let files: Result<Vec<_>> = contents
-                .map(move |f| -> Result<NASFile> {
-                    let file = f.map_err(|e| NASError::UnknownError(e.to_string()))?;
-                    let path = file.path();
-                    let path = path.to_str().ok_or(NASError::UnsupportedPathError)?;
-                    let file = NASFile::from_absolute_path_str(path)?;
-                    Ok(file)
-                })
-                .collect();
-            let files = files.map_err(|e| NASError::UnknownError(e.to_string()))?;
-
-            let file_names: Result<Vec<_>> = files
-                .iter()
-                .map(|f| -> Result<String> {
-                    let file_name = f.path.file_name().ok_or(NASError::UnsupportedPathError)?;
-                    let file_name = file_name.to_str().ok_or(NASError::UnsupportedPathError)?;
-                    Ok(file_name.to_string())
-                })
-                .collect();
-            let file_sizes: Result<Vec<_>> = files
-                .iter()
-                .map(|f| -> Result<u64> {
-                    if f.path.is_dir() {
-                        return Ok(0);
-                    }
-                    let metadata = f.path.metadata()?;
-                    Ok(metadata.len())
-                })
-                .collect();
-            let file_extensions: Result<Vec<_>> = files
-                .iter()
-                .map(|f| -> Result<String> {
-                    if f.path.is_dir() {
-                        return Ok("".to_string());
-                    }
-                    let extension = f.path.extension().ok_or(NASError::UnsupportedPathError)?;
-                    let extension = extension.to_str().ok_or(NASError::UnsupportedPathError)?;
-                    Ok(extension.to_string())
-                })
-                .collect();
-
-            templates.render(
-                "fs",
-                &json!({
-                    "title": "/fs".to_string(),
-                    "hostname": "0zark".to_string(),
-                    "username": "0zark".to_string(),
-                    "breadcrumbs": breadcrumbs.unwrap_or_default(),
-                    "file_names": file_names.unwrap_or_default(),
-                    "file_sizes": file_sizes.unwrap_or_default(),
-                    "file_extensions": file_extensions.unwrap_or_default(),
-                    // "file_types": vec![]
-                }),
-            )?
-        } else {
-            // For files
-
-            match nas_file.file_type {
-                NASFileType::StreamPlaylist => templates.render(
-                    "stream",
-                    &json!({
-                    "hostname": "0zark".to_string(),
-                    "src": format!("/stream/{}", path),
-                    "file_name": "S01E02".to_string(),
-                    }),
-                )?,
-                _ => templates.render(
-                    "stream",
-                    &json!({
-                        "title": "/400".to_string(),
-                        "hostname": "0zark".to_string(),
-                        "username": "0zark".to_string(),
-                    }),
-                )?,
+                templates.render(
+                    "fs",
+                    &FileListPageParams {
+                        title: "/fs".to_string(),
+                        hostname: "0zark".to_string(),
+                        username: "0zark".to_string(),
+                        files,
+                        breadcrumbs,
+                    },
+                )?
             }
+            NASFileCategory::StreamPlaylist => templates.render(
+                "stream",
+                &StreamPageParams {
+                    hostname: "0zark".to_string(),
+                    src: format!("/stream/{}", path),
+                    file_name: "S01E02".to_string(),
+                },
+            )?,
+            _ => templates.render(
+                "400",
+                &BadRequestPageParams {
+                    title: "/fs".to_string(),
+                    hostname: "0zark".to_string(),
+                    username: "0zark".to_string(),
+                },
+            )?,
         }
     };
 
@@ -112,7 +74,7 @@ pub(crate) async fn get(req: tide::Request<AppState>) -> Result<tide::Response, 
     Ok(response)
 }
 
-pub(crate) async fn put(req: tide::Request<AppState>) -> Result<tide::Response, tide::Error> {
+pub async fn put(req: tide::Request<AppState>) -> Result<tide::Response, tide::Error> {
     dbg!(&req);
     use async_std::{fs::OpenOptions, io};
     let file = OpenOptions::new()
@@ -135,7 +97,7 @@ pub(crate) async fn put(req: tide::Request<AppState>) -> Result<tide::Response, 
 //     data: Option<Vec<u8>>,
 // }
 
-pub(crate) async fn post(mut req: tide::Request<AppState>) -> Result<tide::Response, tide::Error> {
+pub async fn post(mut req: tide::Request<AppState>) -> Result<tide::Response, tide::Error> {
     unimplemented!()
     // println!("Here");
     // let path: String = req.param("path")?;
@@ -169,6 +131,6 @@ pub(crate) async fn post(mut req: tide::Request<AppState>) -> Result<tide::Respo
     // }
 }
 
-pub(crate) async fn delete(_: tide::Request<AppState>) -> Result<tide::Response, tide::Error> {
+pub async fn delete(_: tide::Request<AppState>) -> Result<tide::Response, tide::Error> {
     unimplemented!()
 }

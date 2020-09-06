@@ -4,7 +4,6 @@ use std::path::Path;
 mod app_state;
 mod error;
 mod file;
-mod file_type;
 mod routes;
 mod templates;
 

@@ -5,14 +5,15 @@ use flate2::write::GzEncoder;
 use flate2::Compression;
 
 use crate::app_state::AppState;
-use crate::file::{NASFile, NASFileType};
+use crate::file::{NASFile, NASFileCategory};
 
-pub(crate) async fn get(req: tide::Request<AppState>) -> Result<tide::Response, tide::Error> {
+pub async fn get(req: tide::Request<AppState>) -> Result<tide::Response, tide::Error> {
     let path: String = req.param("path")?;
 
     let nas_file = NASFile::from_relative_path_str(&path)?;
+
     let response = {
-        let mut file = std::fs::File::open(nas_file.path)?;
+        let mut file = std::fs::File::open(&nas_file)?;
         let mut file_bytes = Vec::new();
         file.read_to_end(&mut file_bytes)?;
 
@@ -29,9 +30,9 @@ pub(crate) async fn get(req: tide::Request<AppState>) -> Result<tide::Response, 
             .header("Access-Control-Expose-Headers", "Content-Length")
             .header("Access-Control-Allow-Headers", "Range")
             .header("Content-Type", {
-                match nas_file.file_type {
-                    NASFileType::StreamPlaylist => "application/vnd.apple.mpegurl",
-                    NASFileType::StreamSegment => "application/octet-stream",
+                match nas_file.category {
+                    NASFileCategory::StreamPlaylist => "application/vnd.apple.mpegurl",
+                    NASFileCategory::StreamSegment => "application/octet-stream",
                     _ => "",
                 }
             })
