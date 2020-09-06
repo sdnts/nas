@@ -21,6 +21,6 @@ pub async fn get(req: tide::Request<AppState>) -> Result<tide::Response, tide::E
     Ok(response)
 }
 
-pub async fn post(req: tide::Request<AppState>) -> Result<tide::Response, tide::Error> {
+pub async fn post(_: tide::Request<AppState>) -> Result<tide::Response, tide::Error> {
     unimplemented!()
 }
