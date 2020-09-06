@@ -2,6 +2,11 @@
   background-color: var(--background-color);
 }
 
+.icon[data-icon="cross"] {
+  -webkit-mask: url(/public/icons/cross.svg) no-repeat center;
+  mask: url(/public/icons/cross.svg) no-repeat center;
+}
+
 .icon[data-icon="dir"] {
   -webkit-mask: url(/public/icons/dir.svg) no-repeat center;
   mask: url(/public/icons/dir.svg) no-repeat center;
@@ -30,6 +35,11 @@
 .icon[data-icon="pause"] {
   -webkit-mask: url(/public/icons/pause.svg) no-repeat center;
   mask: url(/public/icons/pause.svg) no-repeat center;
+}
+
+.icon[data-icon="pencil"] {
+  -webkit-mask: url(/public/icons/pencil.svg) no-repeat center;
+  mask: url(/public/icons/pencil.svg) no-repeat center;
 }
 
 .icon[data-icon="play"] {
