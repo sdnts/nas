@@ -20,6 +20,9 @@
 
   <main>
     <section id="breadcrumbs">
+      <span class="breadcrumbs__dir-name">/</span>
+      <span class="breadcrumbs__separator">🢒</span>
+
       {{#each breadcrumbs as |b|}}
       <span class="breadcrumbs__dir-name">{{b}}</span>
       <span class="breadcrumbs__separator">🢒</span>
@@ -45,13 +48,13 @@
 
         <li class="file-list__item" title="Parent">
           <div class="icon file-list__item__icon" data-icon="none"></div>
-          <a class="file-list__item__name" href="/fs">..</a>
+          <a class="file-list__item__name" href="/fs/{{parent_href}}">..</a>
         </li>
 
         {{#each files as |file|}}
         <li class="file-list__item" title="{{file.name}}">
           <div class="icon file-list__item__icon" data-icon="dir"></div>
-          <a class="file-list__item__name" href="{{file.name}}">{{file.name}}</a>
+          <a class="file-list__item__name" href="/fs/{{file.relative_path_str}}">{{file.name}}</a>
           <span class="file-list__item__type">{{file.extension}}</span>
           <span class="file-list__item__size">0KiB</span>
 

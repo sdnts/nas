@@ -21,6 +21,7 @@ pub struct FileListPageParams {
     pub hostname: String,
     pub username: String,
     pub breadcrumbs: Vec<String>,
+    pub parent_href: String,
     pub files: Vec<NASFile>,
 }
 
