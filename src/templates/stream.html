@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>{{ name }}'s NAS</title>
+    <title>{{ hostname }}'s NAS</title>
 
     <link rel="stylesheet" href="/public/styles/common.css" />
     <link rel="stylesheet" href="/public/styles/icons.css" />
@@ -13,7 +13,7 @@
 
     <section id="video-hover">
       <button onclick="history.back()" id="back-btn">🢐 Back</button>
-      <div id="video-title">S01E03.Zuko.Alone</div>
+      <div id="video-title">{{ file_name }}</div>
     </section>
 
     <script>

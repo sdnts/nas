@@ -5,7 +5,8 @@ use crate::templates::AuthPage;
 
 pub(crate) async fn get(_: tide::Request<()>) -> Result<tide::Response, tide::Error> {
     let response_body = AuthPage {
-        name: "0zark".to_string(),
+        title: "/fs".to_string(),
+        hostname: "0zark".to_string(),
     };
     let response_body = response_body.render()?;
 
