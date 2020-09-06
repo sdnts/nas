@@ -5,12 +5,13 @@ use std::path::{Path, PathBuf};
 
 use crate::error::NASError;
 
-const ROOT: &str = "/home/ozark/nas_root";
+const ROOT: &str = "/home/ozark/nas_root/";
 
 #[derive(Debug, Serialize)]
 pub struct NASFile {
+    absolute_path_str: String,
+
     pub name: String,
-    pub absolute_path_str: String,
     pub relative_path_str: String,
     pub category: NASFileCategory,
     pub extension: String,
