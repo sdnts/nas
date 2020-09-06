@@ -1,0 +1,23 @@
+.tooltip {
+  position: relative;
+}
+
+.tooltip ul {
+  visibility: hidden;
+  position: absolute;
+  top: 32px;
+  left: 0;
+  background-color: var(--primary-text-color);
+  color: var(--background-color);
+  list-style: none;
+  margin: 10px 0 0 0;
+  padding: 6px 16px;
+  width: 128px;
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-small);
+}
+
+.tooltip ul li {
+  cursor: pointer;
+  margin: 10px 0;
+}

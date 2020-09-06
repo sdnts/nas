@@ -2,11 +2,14 @@ main {
   width: 100%;
   max-width: 1280px;
   flex: 1;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr 32px;
+  grid-template-rows: 32px 1fr;
+  gap: 64px 0;
 }
 
 #breadcrumbs {
+  grid-column: 1 / 2;
   margin-bottom: 40px;
 }
 
@@ -27,7 +30,17 @@ main {
   display: none;
 }
 
+#toolbar {
+  grid-column: 2 / 3;
+  position: relative;
+}
+
+button {
+  background-color: var(--background-color);
+}
+
 #content {
+  grid-column: 1 / 3;
   flex: 1;
 }
 
@@ -69,10 +82,6 @@ main {
   margin-right: 40px;
 }
 
-.file-list__item__:hover {
-  text-decoration: underline;
-}
-
 .file-list__item__type {
   flex: 0 0 80px;
   color: var(--secondary-text-color);
@@ -82,4 +91,19 @@ main {
 .file-list__item__size {
   flex: 0 0 80px;
   color: var(--secondary-text-color);
+}
+
+.file-list__item:hover .file-list__item__name {
+  text-decoration: underline;
+}
+
+#edit-button,
+#remove-button {
+  margin: 0 10px;
+  visibility: hidden;
+}
+
+.file-list__item:hover #edit-button,
+.file-list__item:hover #remove-button {
+  visibility: visible;
 }
