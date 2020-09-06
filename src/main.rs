@@ -2,7 +2,6 @@ use anyhow::Result;
 use std::path::Path;
 
 mod app_state;
-mod error;
 mod file;
 mod routes;
 mod templates;

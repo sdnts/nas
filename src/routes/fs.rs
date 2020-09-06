@@ -1,9 +1,9 @@
-use anyhow::Result;
+use anyhow::*;
+use serde::Deserialize;
 use std::fs;
 use std::path::PathBuf;
 
 use crate::app_state::AppState;
-use crate::error::NASError;
 use crate::file::{NASFile, NASFileCategory};
 use crate::templates::{BadRequestPageParams, FileListPageParams, StreamPageParams};
 
@@ -18,10 +18,10 @@ pub async fn get(req: tide::Request<AppState>) -> Result<tide::Response, tide::E
             NASFileCategory::Directory => {
                 // For directories, render the file list page
                 let contents = fs::read_dir(&nas_file)
-                    .map_err(|e| NASError::FileNotFoundError(e.to_string()))?;
+                    .with_context(|| format!("[fs::get] Unable to read_dir: {:?}", nas_file))?;
                 let files = contents
                     .map(move |f| -> Result<NASFile> {
-                        let file = f.map_err(|e| NASError::UnknownError(e.to_string()))?;
+                        let file = f.context("[fs::get] Failed to get DirEntry ")?;
                         let file = NASFile::from_pathbuf(file.path())?;
                         Ok(file)
                     })
@@ -31,7 +31,12 @@ pub async fn get(req: tide::Request<AppState>) -> Result<tide::Response, tide::E
                 let breadcrumbs = breadcrumbs
                     .iter()
                     .map(|component| -> Result<_> {
-                        let component = component.to_str().ok_or(NASError::UnsupportedPathError)?;
+                        let component = component.to_str().with_context(|| {
+                            format!(
+                                "[fs::get] Failed to convert &OsStr to &str: {:?}",
+                                component
+                            )
+                        })?;
                         Ok(component.to_string())
                     })
                     .collect::<Result<Vec<String>>>()?;
@@ -82,31 +87,65 @@ pub async fn get(req: tide::Request<AppState>) -> Result<tide::Response, tide::E
     Ok(response)
 }
 
-pub async fn put(req: tide::Request<AppState>) -> Result<tide::Response, tide::Error> {
-    dbg!(&req);
-    use async_std::{fs::OpenOptions, io};
-    let file = OpenOptions::new()
-        .create(true)
-        .write(true)
-        .open("/home/ozark/nas_root/Movies/test.txt")
-        .await?;
+#[derive(Debug, Deserialize)]
+struct FSPUTParams {
+    pub dir_name: String,
+}
+pub async fn put(mut req: tide::Request<AppState>) -> Result<tide::Response, tide::Error> {
+    // let templates = req.state().clone().templates;
+    // let path: String = req.param("path").unwrap_or_default();
+    // let body: FSPUTParams = req.body_form().await?;
 
-    let bytes_written = io::copy(req, file).await?;
-    dbg!(bytes_written);
+    // let nas_file = NASFile::from_relative_path_str(&path)?;
+    // let pathbuf = PathBuf::new().join(nas_file.absolute_path_str);
+
+    // if let Some(dir_name) = body.dir_name {
+    //     // Create new dir at this path
+    //     let pathbuf = pathbuf.join(dir_name);
+    //     fs::create_dir_all(pathbuf)?;
+    // } else if let Some(name) = body.name {
+    //     // Rename this path
+    //     dbg!(&pathbuf);
+    //     let renamed_pathbuf = pathbuf.join(name);
+    //     dbg!(&renamed_pathbuf);
+    //     fs::rename(pathbuf, renamed_pathbuf)?;
+    // } else {
+    //     // Bad request
+    // }
 
     Ok(tide::Response::builder(200).build())
 }
 
-pub async fn post(req: tide::Request<AppState>) -> Result<tide::Response, tide::Error> {
-    unimplemented!()
-    // use async_std::{fs::OpenOptions, io};
-    // let file = OpenOptions::new()
-    //     .create(true)
-    //     .write(true)
-    //     .open("/home/ozark/nas_root/Movies/test.txt")
-    //     .await?;
+pub async fn post(mut req: tide::Request<AppState>) -> Result<tide::Response, tide::Error> {
+    let templates = req.state().clone().templates;
+    let path: String = req.param("path").unwrap_or_default();
 
-    // let bytes_written = io::copy(req, file).await?;
+    dbg!(&path);
+    let nas_file = NASFile::from_relative_path_str(&path)?;
+    dbg!(&nas_file);
+
+    let body: Result<FSPUTParams, tide::Error> = req.body_form().await;
+
+    if let Ok(body) = body {
+        // Create Dir
+        println!("dsd");
+        let dir_name = body.dir_name;
+        let pathbuf = PathBuf::new().join(nas_file.absolute_path_str);
+        let pathbuf = pathbuf.join(dir_name);
+        fs::create_dir_all(pathbuf)?;
+    } else {
+        // Create file
+        use async_std::{fs::OpenOptions, io};
+        let file = OpenOptions::new()
+            .create(true)
+            .write(true)
+            .open(&nas_file.absolute_path_str)
+            .await?;
+
+        io::copy(req, file).await?;
+    }
+
+    Ok(tide::Response::builder(200).build())
 }
 
 pub async fn delete(_: tide::Request<AppState>) -> Result<tide::Response, tide::Error> {
