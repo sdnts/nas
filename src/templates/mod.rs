@@ -1,22 +1,20 @@
-use askama::Template;
-
-#[derive(Template, Debug)]
-#[template(path = "400.html")]
+// #[derive(Template, Debug)]
+// #[template(path = "400.html")]
 pub struct BadRequestPage {
     pub title: String,
     pub hostname: String,
     pub username: String,
 }
 
-#[derive(Template, Debug)]
-#[template(path = "auth.html")]
+// #[derive(Template, Debug)]
+// #[template(path = "auth.html")]
 pub struct AuthPage {
     pub title: String,
     pub hostname: String,
 }
 
-#[derive(Template, Debug)]
-#[template(path = "fs.html")]
+// #[derive(Template, Debug)]
+// #[template(path = "fs.html")]
 pub struct FileListPage {
     pub title: String,
     pub hostname: String,
@@ -29,8 +27,8 @@ pub struct FileListPage {
     pub test: serde_json::value::Value,
 }
 
-#[derive(Template, Debug)]
-#[template(path = "stream.html", escape = "none")]
+// #[derive(Template, Debug)]
+// #[template(path = "stream.html", escape = "none")]
 pub struct StreamPage {
     pub hostname: String,
     pub src: String,

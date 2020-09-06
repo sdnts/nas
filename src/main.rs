@@ -1,6 +1,7 @@
 use anyhow::Result;
 use std::path::Path;
 
+mod app_state;
 mod error;
 mod file;
 mod file_type;
@@ -9,9 +10,10 @@ mod templates;
 
 #[async_std::main]
 async fn main() -> Result<()> {
-    tide::log::start();
+    // tide::log::start();
 
-    let mut app = tide::new();
+    let mut state = app_state::AppState::new();
+    let mut app = tide::with_state(state);
 
     app.with(tide::sessions::SessionMiddleware::new(
         tide::sessions::MemoryStore::new(),

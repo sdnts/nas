@@ -4,9 +4,10 @@ use anyhow::Result;
 use flate2::write::GzEncoder;
 use flate2::Compression;
 
+use crate::app_state::AppState;
 use crate::file::{NASFile, NASFileType};
 
-pub(crate) async fn get(req: tide::Request<()>) -> Result<tide::Response, tide::Error> {
+pub(crate) async fn get(req: tide::Request<AppState>) -> Result<tide::Response, tide::Error> {
     let path: String = req.param("path")?;
 
     let nas_file = NASFile::from_relative_path_str(&path)?;
