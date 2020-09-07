@@ -59,7 +59,7 @@
 
         {{#each files as |file|}}
         <li class="file-list__item" title="{{file.name}}">
-          <div class="icon file-list__item__icon" data-icon="dir"></div>
+          <div class="icon file-list__item__icon" data-icon="{{ lowercase file.category }}"></div>
           <a class="file-list__item__name" href="/fs/{{file.relative_path_str}}">{{file.name}}</a>
           <span class="file-list__item__type">{{file.extension}}</span>
           <span class="file-list__item__size">0KiB</span>

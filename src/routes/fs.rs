@@ -41,7 +41,6 @@ pub async fn get(req: tide::Request<AppState>) -> Result<tide::Response, tide::E
                     })
                     .collect::<Result<Vec<String>>>()?;
 
-                dbg!(&breadcrumbs);
                 let parent_href = {
                     if breadcrumbs.is_empty() {
                         vec![]
