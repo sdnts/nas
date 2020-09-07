@@ -6,10 +6,13 @@ pub struct AppState {
     pub templates: Arc<Handlebars<'static>>,
 }
 
+// lazy_static this
 impl AppState {
     pub fn new() -> Self {
         let mut handlebars = Handlebars::new();
-        handlebars.register_templates_directory(".hbs", "src/templates/").unwrap();
+        handlebars
+            .register_templates_directory(".hbs", "src/templates/")
+            .unwrap();
 
         Self {
             templates: Arc::new(handlebars),

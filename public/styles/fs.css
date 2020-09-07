@@ -74,8 +74,9 @@ button {
 }
 
 .file-list__item__name {
-  flex: 0 0 360px;
+  flex: 0 0 480px;
   overflow: hidden;
+  white-space: nowrap;
   text-overflow: ellipsis;
   color: var(--primary-text-color) !important;
   text-decoration: none;
@@ -106,4 +107,8 @@ button {
 .file-list__item:hover #edit-button,
 .file-list__item:hover #remove-button {
   visibility: visible;
+}
+
+#upload-progress {
+  display: none;
 }

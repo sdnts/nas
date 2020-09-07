@@ -30,9 +30,11 @@
     </section>
 
     <section id="toolbar" class="tooltip">
-      <button class="icon button">
+      <button id="upload-button" class="icon button">
         <div class="icon" data-icon="upload"></div>
       </button>
+
+      <div id="upload-progress">72%</div>
 
       <ul>
         <li onclick="addFile()">
@@ -41,16 +43,13 @@
         </li>
         <li onclick="addDir()">
           <div class="icon" data-icon="dir-add"></div>
-          New Folder
+          New Directory
         </li>
       </ul>
     </section>
 
     <section id="content">
       <ul id="file-list">
-        <form id="add-file" enctype="multipart/form-data">
-          <input id="image-file" type="file" name="file" onchange="upload()" />
-        </form>
 
         <li class="file-list__item" title="Parent">
           <div class="icon file-list__item__icon" data-icon="none"></div>

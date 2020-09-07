@@ -2,7 +2,11 @@ const root = location.pathname.replace("/fs", "") || "/";
 console.log(root);
 
 const addFile = () => {
-  console.log("add file");
+  const fileInput = document.createElement("input");
+  fileInput.setAttribute("type", "file");
+  fileInput.onchange = uploadFile;
+
+  fileInput.click();
 };
 
 const addDir = () => {
@@ -10,7 +14,7 @@ const addDir = () => {
 
   let newDirRow = document.createElement("li");
   newDirRow.classList.add("file-list__item");
-  newDirRow.title = "New Folder";
+  newDirRow.title = "New Directory";
 
   let icon = document.createElement("div");
   icon.classList.add("icon");
@@ -34,18 +38,36 @@ const addDir = () => {
   input.focus();
 };
 
-const upload = (e) => {
-  const files = document.querySelector("#image-file").files;
-  const formData = new FormData();
-  formData.append("file", files[0]);
+const uploadFile = (e) => {
+  const file = e.target.files[0];
 
-  fetch("/fs/Movies", {
-    method: "POST",
-    body: JSON.stringify({
-      name: "something",
-      data: formData,
-    }),
-  }).then((response) => {
-    console.log(response);
+  if (!file) {
+    return;
+  }
+
+  const uploadButton = document.querySelector("#upload-button");
+  uploadButton.style.display = "none";
+
+  const uploadProgress = document.querySelector("#upload-progress");
+  uploadProgress.style.display = "flex";
+
+  const url = `${location.pathname}/${file.name}`;
+  // Use XHR to send the file, because we want a progress bar
+  const request = new XMLHttpRequest();
+  request.open("post", url);
+  request.upload.addEventListener("progress", function (e) {
+    uploadProgress.innerText = `${Math.floor((e.loaded / e.total) * 100)}%`;
   });
+
+  request.addEventListener("load", function (e) {
+    if (request.status !== 200) {
+      console.error("Something went wrong");
+    }
+
+    location.reload();
+  });
+
+  const formData = new FormData();
+  formData.append("file", file);
+  request.send(formData);
 };
