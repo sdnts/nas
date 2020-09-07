@@ -1,13 +1,49 @@
 const root = location.pathname.replace("/fs", "") || "/";
 
-const addFile = () => {
+const createFile = () => {
+  // Create an invisible file selector
   const fileInput = document.createElement("input");
   fileInput.setAttribute("type", "file");
-  fileInput.onchange = uploadFile;
+  fileInput.onchange = (e) => {
+    // When its value changes (when you've selected a file, upload it)
+    const file = e.target.files[0];
+
+    if (!file) {
+      return;
+    }
+
+    // Replace the upload button with a progress bar
+    const uploadButton = document.querySelector("#upload-button");
+    uploadButton.style.display = "none";
+
+    const uploadProgress = document.querySelector("#upload-progress");
+    uploadProgress.style.display = "flex";
+
+    // And upload the file
+    const url = `${location.pathname}/${file.name}`;
+    // Use XHR to send the file, because we want a progress bar
+    const request = new XMLHttpRequest();
+    request.open("post", url);
+    request.upload.addEventListener("progress", function (e) {
+      uploadProgress.innerText = `${Math.floor((e.loaded / e.total) * 100)}%`;
+    });
+
+    request.addEventListener("load", function (e) {
+      if (request.status !== 200) {
+        console.error("Something went wrong");
+      }
+      location.reload();
+    });
+
+    const formData = new FormData();
+    formData.append("file", file);
+    request.send(formData);
+  };
   fileInput.click();
 };
 
-const addDir = () => {
+const createDir = () => {
+  // Create a new (temp) directory row right below the `..` row
   const fileList = document.querySelector("#file-list");
 
   let newDirRow = document.createElement("li");
@@ -24,60 +60,42 @@ const addDir = () => {
   icon.setAttribute("data-icon", "directory");
   newDirRow.appendChild(icon);
 
-  let input = document.createElement("input");
-  input.name = "dirname";
-  input.classList.add("input");
-  input.classList.add("file-list__item__name");
-  input.onsubmit = (e) => {
-    console.log("create", e.target.value);
+  let nameInput = document.createElement("input");
+  nameInput.name = "dirname";
+  nameInput.classList.add("input");
+  nameInput.classList.add("file-list__item__name");
+  nameInput.value = currentName;
+  nameInput.onkeyup = (e) => {
+    if (e.key === "Enter") {
+      // When you press enter on the input, create the dir
+      e.preventDefault();
+      nameInput.blur();
+    } else if (e.key === "Escape") {
+      // If you press Esc on the input, cancel creation
+      e.preventDefault();
+      listItem.removeChild(newDirRow);
+    }
   };
-  input.oncancel = (e) => {
-    console.log("cancel");
-  };
-  newDirRow.appendChild(input);
+  // If you click outside the input, create the dir
+  nameInput.onblur = (e) =>
+    fetch(`${location.pathname}/${e.target.value}`, {
+      method: "POST",
+    }).then((res) => {
+      if (res.status === 200) {
+        location.reload();
+      } else {
+        console.error("Something went wrong");
+      }
+    });
+  newDirRow.appendChild(nameInput);
 
   fileList.insertBefore(newDirRow, fileList.children[1]);
 
   input.focus();
 };
 
-const uploadFile = (e) => {
-  const file = e.target.files[0];
-
-  if (!file) {
-    return;
-  }
-
-  const uploadButton = document.querySelector("#upload-button");
-  uploadButton.style.display = "none";
-
-  const uploadProgress = document.querySelector("#upload-progress");
-  uploadProgress.style.display = "flex";
-
-  const url = `${location.pathname}/${file.name}`;
-  // Use XHR to send the file, because we want a progress bar
-  const request = new XMLHttpRequest();
-  request.open("post", url);
-  request.upload.addEventListener("progress", function (e) {
-    uploadProgress.innerText = `${Math.floor((e.loaded / e.total) * 100)}%`;
-  });
-
-  request.addEventListener("load", function (e) {
-    if (request.status !== 200) {
-      console.error("Something went wrong");
-    }
-
-    location.reload();
-  });
-
-  const formData = new FormData();
-  formData.append("file", file);
-  request.send(formData);
-};
-
-const uploadDir = () => {};
-
-const startRenamePath = (editButton) => {
+const renamePath = (editButton) => {
+  // Replace the row's name you clicked on with an input (while saving the old name)
   let listItem = editButton.parentElement;
   let nameElement = listItem.querySelector(".file-list__item__name");
   let currentName = nameElement.innerText;
@@ -89,33 +107,36 @@ const startRenamePath = (editButton) => {
   nameInput.value = currentName;
   nameInput.onkeyup = (e) => {
     if (e.key === "Enter") {
+      // When you press enter on the input, rename the path
       e.preventDefault();
       nameInput.blur();
     } else if (e.key === "Escape") {
+      // If you press Esc on the input, cancel rename
       e.preventDefault();
       listItem.replaceChild(nameElement, nameInput);
     }
   };
-  nameInput.onblur = (e) => renamePath(currentName, e.target.value);
+  // If you click outside the input, rename the path
+  nameInput.onblur = (e) =>
+    fetch(`${location.pathname}/${currentName}`, {
+      method: "PUT",
+      body: e.target.value,
+    }).then((res) => {
+      if (res.status === 200) {
+        location.reload();
+      } else {
+        console.error("Something went wrong");
+      }
+    });
+
   listItem.replaceChild(nameInput, nameElement);
 
   nameInput.focus();
   nameInput.select();
 };
 
-const renamePath = (currentName, newName) =>
-  fetch(`${location.pathname}/${currentName}`, {
-    method: "PUT",
-    body: newName,
-  }).then((res) => {
-    if (res.status === 200) {
-      location.reload();
-    } else {
-      console.error("Something went wrong");
-    }
-  });
-
-const confirmDeletePath = (removeButton) => {
+const tryDeletePath = (removeButton) => {
+  // When you press the delete button, replace it with another button that will have to be clicked again to confirm deletion
   const listItem = removeButton.parentElement;
   const confirmButton = listItem.querySelector("#confirm-remove-button");
 

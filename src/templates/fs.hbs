@@ -38,11 +38,11 @@
       <div id="upload-progress">72%</div>
 
       <ul>
-        <li onclick="addFile()">
+        <li onclick="createFile()">
           <div class="icon" data-icon="file-add"></div>
           New File
         </li>
-        <li onclick="addDir()">
+        <li onclick="createDir()">
           <div class="icon" data-icon="dir-add"></div>
           New Directory
         </li>
@@ -66,10 +66,10 @@
           <span class="file-list__item__type">{{file.extension}}</span>
           <span class="file-list__item__size">{{filesize file.size_bytes}}</span>
 
-          <button id="edit-button" class="icon button" onclick='startRenamePath(this)'>
+          <button id="edit-button" class="icon button" onclick='renamePath(this)'>
             <div class="icon" data-icon="edit"></div>
           </button>
-          <button id="remove-button" class="icon button" onclick='confirmDeletePath(this)'>
+          <button id="remove-button" class="icon button" onclick='tryDeletePath(this)'>
             <div class="icon" data-icon="trash"></div>
           </button>
           <button id="confirm-remove-button" class="icon button" onclick='deletePath("{{ file.name }}")'>
