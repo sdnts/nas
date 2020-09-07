@@ -141,6 +141,10 @@ impl NASFile {
 
         Ok(size)
     }
+
+    pub fn relative_to_absolute(pathbuf: &PathBuf) -> PathBuf {
+        Path::new(ROOT).join(pathbuf)
+    }
 }
 
 impl Into<PathBuf> for NASFile {
