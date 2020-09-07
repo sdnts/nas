@@ -129,6 +129,15 @@ pub async fn post(req: tide::Request<AppState>) -> Result<tide::Response, tide::
     Ok(tide::Response::builder(200).build())
 }
 
-pub async fn delete(_: tide::Request<AppState>) -> Result<tide::Response, tide::Error> {
-    unimplemented!()
+pub async fn delete(req: tide::Request<AppState>) -> Result<tide::Response, tide::Error> {
+    let path: String = req.param("path").unwrap_or_default();
+
+    let nas_file = NASFile::from_relative_path_str(&path)?;
+
+    match nas_file.category {
+        NASFileCategory::Directory => fs::remove_dir_all::<NASFile>(nas_file)?,
+        _ => fs::remove_file::<NASFile>(nas_file.into())?,
+    };
+
+    Ok(tide::Response::builder(200).build())
 }

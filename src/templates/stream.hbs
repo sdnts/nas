@@ -1,25 +1,28 @@
 <html>
-  <head>
-    <title>{{ hostname }}'s NAS</title>
 
-    <link rel="stylesheet" href="/public/styles/common.css" />
-    <link rel="stylesheet" href="/public/styles/icons.css" />
-    <link rel="stylesheet" href="/public/styles/dark.css" />
-    <link rel="stylesheet" href="/public/styles/stream.css" />
-  </head>
+<head>
+  <title>{{ hostname }}'s NAS</title>
 
-  <body>
-    <video id="video" controls></video>
+  <link rel="icon" href="/public/icons/nas.svg">
+  <link rel="stylesheet" href="/public/styles/common.css" />
+  <link rel="stylesheet" href="/public/styles/icons.css" />
+  <link rel="stylesheet" href="/public/styles/dark.css" />
+  <link rel="stylesheet" href="/public/styles/stream.css" />
+</head>
 
-    <section id="video-hover">
-      <button onclick="history.back()" id="back-btn">🢐 Back</button>
-      <div id="video-title">{{ file_name }}</div>
-    </section>
+<body>
+  <video id="video" controls></video>
 
-    <script>
-      window.streamSrc = "{{ src }}";
-    </script>
-    <script src="//cdn.jsdelivr.net/npm/hls.js@latest"></script>
-    <script src="/public/scripts/stream.js"></script>
-  </body>
+  <section id="video-hover">
+    <button onclick="history.back()" id="back-btn">🢐 Back</button>
+    <div id="video-title">{{ file_name }}</div>
+  </section>
+
+  <script>
+    window.streamSrc = "{{ src }}";
+  </script>
+  <script src="//cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script src="/public/scripts/stream.js"></script>
+</body>
+
 </html>

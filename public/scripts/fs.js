@@ -1,11 +1,9 @@
 const root = location.pathname.replace("/fs", "") || "/";
-console.log(root);
 
 const addFile = () => {
   const fileInput = document.createElement("input");
   fileInput.setAttribute("type", "file");
   fileInput.onchange = uploadFile;
-
   fileInput.click();
 };
 
@@ -70,4 +68,34 @@ const uploadFile = (e) => {
   const formData = new FormData();
   formData.append("file", file);
   request.send(formData);
+};
+
+const uploadDir = () => {};
+
+const renamePath = () => {};
+
+const confirmDeletePath = (removeButton) => {
+  const listItem = removeButton.parentElement;
+  const confirmButton = listItem.querySelector("#confirm-remove-button");
+
+  // Memory leak is fine
+  listItem.addEventListener("mouseleave", () => {
+    removeButton.style.display = "block";
+    confirmButton.style.display = "none";
+  });
+
+  removeButton.style.display = "none";
+  confirmButton.style.display = "block";
+};
+
+const deletePath = (name) => {
+  fetch(`${location.pathname}/${name}`, {
+    method: "DELETE",
+  }).then((res) => {
+    if (res.status === 200) {
+      location.reload();
+    } else {
+      console.error("Something went wrong");
+    }
+  });
 };

@@ -99,16 +99,26 @@ button {
 }
 
 #edit-button,
-#remove-button {
+#remove-button,
+#confirm-remove-button {
   margin: 0 10px;
   visibility: hidden;
 }
 
 .file-list__item:hover #edit-button,
-.file-list__item:hover #remove-button {
+.file-list__item:hover #remove-button,
+.file-list__item:hover #confirm-remove-button {
   visibility: visible;
 }
 
 #upload-progress {
   display: none;
+}
+
+#confirm-remove-button {
+  display: none;
+}
+
+#confirm-remove-button .icon {
+  background-color: var(--alert-text-color);
 }

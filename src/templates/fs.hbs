@@ -5,6 +5,7 @@
 
   <title>{{ hostname }}'s NAS</title>
 
+  <link rel="icon" href="/public/icons/nas.svg">
   <link rel="stylesheet" href="/public/styles/common.css" />
   <link rel="stylesheet" href="/public/styles/icons.css" />
   <link rel="stylesheet" href="/public/styles/dark.css" />
@@ -66,8 +67,11 @@
           <button id="edit-button" class="icon button">
             <div class="icon" data-icon="edit"></div>
           </button>
-          <button id="remove-button" class="icon button">
+          <button id="remove-button" class="icon button" onclick='confirmDeletePath(this)'>
             <div class="icon" data-icon="trash"></div>
+          </button>
+          <button id="confirm-remove-button" class="icon button" onclick='deletePath("{{ file.name }}")'>
+            <div class="icon" data-icon="alert"></div>
           </button>
         </li>
         {{/each}}
