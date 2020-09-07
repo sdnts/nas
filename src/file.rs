@@ -201,13 +201,17 @@ impl PartialOrd for NASFile {
         if matches!(self.category, NASFileCategory::Directory)
             && matches!(other.category, NASFileCategory::Directory)
         {
-            self.name.partial_cmp(&other.name)
+            self.name
+                .to_lowercase()
+                .partial_cmp(&other.name.to_lowercase())
         } else if matches!(self.category, NASFileCategory::Directory) {
             Some(Ordering::Less)
         } else if matches!(other.category, NASFileCategory::Directory) {
             Some(Ordering::Greater)
         } else {
-            self.name.partial_cmp(&other.name)
+            self.name
+                .to_lowercase()
+                .partial_cmp(&other.name.to_lowercase())
         }
     }
 }
