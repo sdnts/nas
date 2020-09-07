@@ -20,23 +20,29 @@
 
   <main>
     <section id="breadcrumbs">
-      <span class="breadcrumbs__dir-name">/</span>
-      <span class="breadcrumbs__separator">🢒</span>
+      <div class="icon breadcrumbs__separator" data-icon="nas"></div>
+      <div class="icon breadcrumbs__separator" data-icon="chevron-right"></div>
 
       {{#each breadcrumbs as |b|}}
       <span class="breadcrumbs__dir-name">{{b}}</span>
-      <span class="breadcrumbs__separator">🢒</span>
+      <div class="icon breadcrumbs__separator" data-icon="chevron-right"></div>
       {{/each}}
     </section>
 
     <section id="toolbar" class="tooltip">
       <button class="icon button">
-        <div class="icon" data-icon="plus"></div>
+        <div class="icon" data-icon="upload"></div>
       </button>
 
       <ul>
-        <li onclick="addFile()">New File</li>
-        <li onclick="addDir()">New Folder</li>
+        <li onclick="addFile()">
+          <div class="icon" data-icon="file-add"></div>
+          New File
+        </li>
+        <li onclick="addDir()">
+          <div class="icon" data-icon="dir-add"></div>
+          New Folder
+        </li>
       </ul>
     </section>
 
@@ -59,10 +65,10 @@
           <span class="file-list__item__size">0KiB</span>
 
           <button id="edit-button" class="icon button">
-            <div class="icon" data-icon="pencil"></div>
+            <div class="icon" data-icon="edit"></div>
           </button>
           <button id="remove-button" class="icon button">
-            <div class="icon" data-icon="cross"></div>
+            <div class="icon" data-icon="trash"></div>
           </button>
         </li>
         {{/each}}

@@ -1,36 +1,38 @@
 <html>
-  <head>
-    <meta charset="UTF-8" />
 
-    <title>{{ hostname }}'s NAS</title>
+<head>
+  <meta charset="UTF-8" />
 
-    <link rel="stylesheet" href="/public/styles/common.css" />
-    <link rel="stylesheet" href="/public/styles/icons.css" />
-    <link rel="stylesheet" href="/public/styles/dark.css" />
-    <link rel="stylesheet" href="/public/styles/auth.css" />
-  </head>
+  <title>{{ hostname }}'s NAS</title>
 
-  <body>
-    <header>
-      <span id="title">/auth</span>
-    </header>
+  <link rel="stylesheet" href="/public/styles/common.css" />
+  <link rel="stylesheet" href="/public/styles/icons.css" />
+  <link rel="stylesheet" href="/public/styles/dark.css" />
+  <link rel="stylesheet" href="/public/styles/auth.css" />
+</head>
 
-    <main>
-      <section id="section__title">
-        <span> {{ hostname }}'s NAS</span>
-      </section>
+<body>
+  <header>
+    <span id="title">/auth</span>
+  </header>
 
-      <section id="form">
-        <form action="/auth" method="POST">
-          <input class="input" type="text" name="username" />
-          <input class="input" type="password" name="password" />
+  <main>
+    <section id="section__title">
+      <span> {{ hostname }}'s NAS</span>
+    </section>
 
-          <div id="submit-button">
-            <input class="button" type="submit" value="" />
-            <div class="icon" id="submit-button__icon" data-icon="go"></div>
-          </div>
-        </form>
-      </section>
-    </main>
-  </body>
+    <section id="form">
+      <form action="/auth" method="POST">
+        <input class="input" type="text" name="username" />
+        <input class="input" type="password" name="password" />
+
+        <div id="submit-button">
+          <input class="button" type="submit" value="" />
+          <div class="icon" id="submit-button__icon" data-icon="chevron-right"></div>
+        </div>
+      </form>
+    </section>
+  </main>
+</body>
+
 </html>

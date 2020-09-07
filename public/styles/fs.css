@@ -11,6 +11,8 @@ main {
 #breadcrumbs {
   grid-column: 1 / 2;
   margin-bottom: 40px;
+  display: flex;
+  align-items: center;
 }
 
 .breadcrumbs__dir-name {
@@ -68,8 +70,6 @@ button {
 }
 
 .file-list__item__icon {
-  flex: 0 0 14px;
-  height: 14px;
   margin-right: 30px;
 }
 
