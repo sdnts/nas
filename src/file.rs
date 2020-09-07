@@ -120,12 +120,18 @@ impl NASFile {
             return Ok("".to_string());
         }
 
-        let extension = pathbuf
-            .extension()
-            .context("[NASFile::extension] Unable to compute extension from PathBuf")?;
-        let extension = extension
-            .to_str()
-            .context("[NASFile::extension] Unable to convert OsStr to str")?;
+        let extension = pathbuf.extension().with_context(|| {
+            format!(
+                "[NASFile::extension] Unable to compute extension from PathBuf for {:?}",
+                pathbuf
+            )
+        })?;
+        let extension = extension.to_str().with_context(|| {
+            format!(
+                "[NASFile::extension] Unable to convert OsStr to str for {:?}",
+                extension
+            )
+        })?;
         Ok(extension.to_string())
     }
 
@@ -134,16 +140,37 @@ impl NASFile {
             return Ok(0);
         }
 
-        let size = pathbuf
-            .metadata()
-            .context("[NASFile::size_bytes] Unable to compute metadata from PathBuf")?;
+        let size = pathbuf.metadata().with_context(|| {
+            format!(
+                "[NASFile::size_bytes] Unable to compute metadata from {:?}",
+                pathbuf
+            )
+        })?;
         let size = size.len();
 
         Ok(size)
     }
 
-    pub fn relative_to_absolute(pathbuf: &PathBuf) -> PathBuf {
-        Path::new(ROOT).join(pathbuf)
+    pub fn relative_to_absolute_str(path: &str) -> Result<String> {
+        let relative_path_str = percent_encoding::percent_decode_str(&path)
+            .decode_utf8()
+            .with_context(|| {
+                format!(
+                    "[NASFile::relative_to_absolute_str] Percent decode failed for: {}",
+                    path
+                )
+            })?;
+        let relative_path_str = relative_path_str.to_string();
+
+        let path = Path::new(ROOT).join(&relative_path_str);
+        let path_str = path.to_str().with_context(|| {
+            format!(
+                "[NASFile::relative_to_absolute_str] Unable to convert OsStr to str for: {}",
+                relative_path_str
+            )
+        })?;
+
+        Ok(path_str.to_string())
     }
 }
 

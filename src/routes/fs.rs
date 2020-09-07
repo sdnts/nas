@@ -1,7 +1,7 @@
 use anyhow::*;
 use serde::Deserialize;
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use crate::app_state::AppState;
 use crate::file::{NASFile, NASFileCategory};
@@ -103,11 +103,9 @@ pub async fn put(_: tide::Request<AppState>) -> Result<tide::Response, tide::Err
 }
 
 pub async fn post(req: tide::Request<AppState>) -> Result<tide::Response, tide::Error> {
-    let templates = req.state().clone().templates;
     let path: String = req.param("path").unwrap_or_default();
-
-    let pathbuf = PathBuf::new().join(path);
-    let pathbuf = NASFile::relative_to_absolute(&pathbuf);
+    let path = NASFile::relative_to_absolute_str(&path)?;
+    let path = Path::new(&path);
 
     let is_empty = req
         .is_empty()
@@ -115,14 +113,14 @@ pub async fn post(req: tide::Request<AppState>) -> Result<tide::Response, tide::
 
     if is_empty {
         // Create Dir at path
-        fs::create_dir_all(pathbuf)?;
+        fs::create_dir_all(path)?;
     } else {
         // Create file at path
         use async_std::{fs::OpenOptions, io};
         let file = OpenOptions::new()
             .create(true)
             .write(true)
-            .open(&pathbuf)
+            .open(&path)
             .await?;
 
         io::copy(req, file).await?;
