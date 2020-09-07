@@ -177,7 +177,7 @@ impl NASFile {
 
 impl Into<PathBuf> for NASFile {
     fn into(self) -> PathBuf {
-        PathBuf::new().join(self.relative_path_str)
+        PathBuf::new().join(self.absolute_path_str)
     }
 }
 

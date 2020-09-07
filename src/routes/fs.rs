@@ -1,5 +1,4 @@
 use anyhow::*;
-use serde::Deserialize;
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -28,7 +27,7 @@ pub async fn get(req: tide::Request<AppState>) -> Result<tide::Response, tide::E
                     .collect::<Result<Vec<NASFile>>>()?;
                 files.sort();
 
-                let breadcrumbs: PathBuf = nas_file.into();
+                let breadcrumbs: PathBuf = PathBuf::new().join(nas_file.relative_path_str);
                 let breadcrumbs = breadcrumbs
                     .iter()
                     .map(|component| -> Result<_> {
@@ -86,7 +85,7 @@ pub async fn get(req: tide::Request<AppState>) -> Result<tide::Response, tide::E
         }
     };
 
-    let response = tide::Response::builder(200)
+    let response = tide::Response::builder(tide::StatusCode::Ok)
         .body(response_body)
         .content_type("text/html;charset=utf-8")
         .build();
@@ -94,12 +93,28 @@ pub async fn get(req: tide::Request<AppState>) -> Result<tide::Response, tide::E
     Ok(response)
 }
 
-#[derive(Debug, Deserialize)]
-struct FSPUTParams {
-    // pub dir_name: String,
-}
-pub async fn put(_: tide::Request<AppState>) -> Result<tide::Response, tide::Error> {
-    Ok(tide::Response::builder(200).build())
+pub async fn put(mut req: tide::Request<AppState>) -> Result<tide::Response, tide::Error> {
+    let path: String = req.param("path").unwrap_or_default();
+    let name = req.body_string().await?;
+
+    let nas_file = NASFile::from_relative_path_str(&path)?;
+    let renamed_path = NASFile::from_relative_path_str(&path)?;
+    let renamed_path: PathBuf = renamed_path.into();
+    let renamed_path = renamed_path
+        .parent()
+        .with_context(|| format!("[fs::put] Path to rename has no parent: {:?}", renamed_path))?
+        .join(&name);
+
+    if renamed_path.exists() {
+        // Behaviour differs with platform, so exit early
+        Err(tide::Error::new(
+            tide::StatusCode::BadRequest,
+            anyhow!("[fs::put] Target path already exists"),
+        ))
+    } else {
+        fs::rename(nas_file, renamed_path)?;
+        Ok(tide::Response::builder(tide::StatusCode::Ok).build())
+    }
 }
 
 pub async fn post(req: tide::Request<AppState>) -> Result<tide::Response, tide::Error> {
@@ -126,7 +141,7 @@ pub async fn post(req: tide::Request<AppState>) -> Result<tide::Response, tide::
         io::copy(req, file).await?;
     }
 
-    Ok(tide::Response::builder(200).build())
+    Ok(tide::Response::builder(tide::StatusCode::Ok).build())
 }
 
 pub async fn delete(req: tide::Request<AppState>) -> Result<tide::Response, tide::Error> {
@@ -139,5 +154,5 @@ pub async fn delete(req: tide::Request<AppState>) -> Result<tide::Response, tide
         _ => fs::remove_file::<NASFile>(nas_file.into())?,
     };
 
-    Ok(tide::Response::builder(200).build())
+    Ok(tide::Response::builder(tide::StatusCode::Ok).build())
 }

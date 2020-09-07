@@ -23,7 +23,7 @@ pub async fn get(req: tide::Request<AppState>) -> Result<tide::Response, tide::E
         let file_bytes = encoder.finish()?;
 
         // And send it back
-        tide::Response::builder(200)
+        tide::Response::builder(tide::StatusCode::Ok)
             .body(file_bytes)
             .header("Access-Control-Allow-Origin", "*")
             .header("Content-Encoding", "gzip")

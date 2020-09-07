@@ -14,22 +14,27 @@ const addDir = () => {
   newDirRow.classList.add("file-list__item");
   newDirRow.title = "New Directory";
 
+  let marker = document.createElement("div");
+  marker.classList.add("file-list__item__marker");
+  newDirRow.appendChild(marker);
+
   let icon = document.createElement("div");
   icon.classList.add("icon");
   icon.classList.add("file-list__item__icon");
-  icon.setAttribute("data-icon", "dir");
+  icon.setAttribute("data-icon", "directory");
   newDirRow.appendChild(icon);
-
-  let form = document.createElement("form");
-  form.action = `/fs${root}`;
-  form.method = "POST";
-  newDirRow.appendChild(form);
 
   let input = document.createElement("input");
   input.name = "dirname";
   input.classList.add("input");
   input.classList.add("file-list__item__name");
-  form.appendChild(input);
+  input.onsubmit = (e) => {
+    console.log("create", e.target.value);
+  };
+  input.oncancel = (e) => {
+    console.log("cancel");
+  };
+  newDirRow.appendChild(input);
 
   fileList.insertBefore(newDirRow, fileList.children[1]);
 
@@ -72,7 +77,43 @@ const uploadFile = (e) => {
 
 const uploadDir = () => {};
 
-const renamePath = () => {};
+const startRenamePath = (editButton) => {
+  let listItem = editButton.parentElement;
+  let nameElement = listItem.querySelector(".file-list__item__name");
+  let currentName = nameElement.innerText;
+
+  let nameInput = document.createElement("input");
+  nameInput.name = "dirname";
+  nameInput.classList.add("input");
+  nameInput.classList.add("file-list__item__name");
+  nameInput.value = currentName;
+  nameInput.onkeyup = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      nameInput.blur();
+    } else if (e.key === "Escape") {
+      e.preventDefault();
+      listItem.replaceChild(nameElement, nameInput);
+    }
+  };
+  nameInput.onblur = (e) => renamePath(currentName, e.target.value);
+  listItem.replaceChild(nameInput, nameElement);
+
+  nameInput.focus();
+  nameInput.select();
+};
+
+const renamePath = (currentName, newName) =>
+  fetch(`${location.pathname}/${currentName}`, {
+    method: "PUT",
+    body: newName,
+  }).then((res) => {
+    if (res.status === 200) {
+      location.reload();
+    } else {
+      console.error("Something went wrong");
+    }
+  });
 
 const confirmDeletePath = (removeButton) => {
   const listItem = removeButton.parentElement;

@@ -13,7 +13,7 @@ pub async fn get(req: tide::Request<AppState>) -> Result<tide::Response, tide::E
         },
     )?;
 
-    let response = tide::Response::builder(200)
+    let response = tide::Response::builder(tide::StatusCode::Ok)
         .body(response_body)
         .content_type("text/html;charset=utf-8")
         .build();

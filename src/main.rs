@@ -13,7 +13,8 @@ async fn main() -> Result<()> {
     let state = app_state::AppState::new();
     let mut app = tide::with_state(state);
 
-    let secret = dotenv::var("NAS_COOKIE_SECRET").context("Unable to locate NAS_COOKIE_SECRET")?;
+    let secret =
+        dotenv::var("NAS_COOKIE_SECRET").context("[main] Unable to locate NAS_COOKIE_SECRET")?;
     app.with(tide::sessions::SessionMiddleware::new(
         tide::sessions::MemoryStore::new(),
         secret.as_bytes(),
