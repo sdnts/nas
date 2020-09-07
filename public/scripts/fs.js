@@ -1,5 +1,3 @@
-const root = location.pathname.replace("/fs", "") || "/";
-
 const createFile = () => {
   // Create an invisible file selector
   const fileInput = document.createElement("input");
