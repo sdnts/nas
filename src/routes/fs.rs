@@ -19,13 +19,14 @@ pub async fn get(req: tide::Request<AppState>) -> Result<tide::Response, tide::E
                 // For directories, render the file list page
                 let contents = fs::read_dir(&nas_file)
                     .with_context(|| format!("[fs::get] Unable to read_dir: {:?}", nas_file))?;
-                let files = contents
+                let mut files = contents
                     .map(move |f| -> Result<NASFile> {
                         let file = f.context("[fs::get] Failed to get DirEntry ")?;
                         let file = NASFile::from_pathbuf(file.path())?;
                         Ok(file)
                     })
                     .collect::<Result<Vec<NASFile>>>()?;
+                files.sort();
 
                 let breadcrumbs: PathBuf = nas_file.into();
                 let breadcrumbs = breadcrumbs

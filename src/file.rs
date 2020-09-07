@@ -1,11 +1,12 @@
 use anyhow::*;
 use serde::Serialize;
+use std::cmp::Ordering;
 use std::convert::{AsRef, Into};
 use std::path::{Path, PathBuf};
 
 const ROOT: &str = "/home/ozark/nas_root/";
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Eq, Ord)]
 pub struct NASFile {
     pub name: String,
     pub relative_path_str: String,
@@ -186,7 +187,32 @@ impl AsRef<Path> for NASFile {
     }
 }
 
-#[derive(Debug, Serialize)]
+impl PartialEq for NASFile {
+    fn eq(&self, other: &NASFile) -> bool {
+        let pathbuf = &self.absolute_path_str;
+        let other_pathbuf = &other.absolute_path_str;
+
+        pathbuf == other_pathbuf
+    }
+}
+
+impl PartialOrd for NASFile {
+    fn partial_cmp(&self, other: &NASFile) -> Option<Ordering> {
+        if matches!(self.category, NASFileCategory::Directory)
+            && matches!(other.category, NASFileCategory::Directory)
+        {
+            self.name.partial_cmp(&other.name)
+        } else if matches!(self.category, NASFileCategory::Directory) {
+            Some(Ordering::Less)
+        } else if matches!(other.category, NASFileCategory::Directory) {
+            Some(Ordering::Greater)
+        } else {
+            self.name.partial_cmp(&other.name)
+        }
+    }
+}
+
+#[derive(Debug, Serialize, PartialEq, Eq, Ord)]
 pub enum NASFileCategory {
     Directory,
     Audio,
@@ -196,4 +222,16 @@ pub enum NASFileCategory {
     Document,
     Image,
     Unknown,
+}
+
+impl PartialOrd for NASFileCategory {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        if matches!(self, Self::Directory) && matches!(other, Self::Directory) {
+            Some(Ordering::Less)
+        } else if matches!(self, Self::Directory) && matches!(other, Self::Directory) {
+            Some(Ordering::Greater)
+        } else {
+            Some(Ordering::Equal)
+        }
+    }
 }
