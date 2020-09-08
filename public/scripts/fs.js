@@ -62,7 +62,6 @@ const createDir = () => {
   nameInput.name = "dirname";
   nameInput.classList.add("input");
   nameInput.classList.add("file-list__item__name");
-  nameInput.value = currentName;
   nameInput.onkeyup = (e) => {
     if (e.key === "Enter") {
       // When you press enter on the input, create the dir
@@ -71,7 +70,7 @@ const createDir = () => {
     } else if (e.key === "Escape") {
       // If you press Esc on the input, cancel creation
       e.preventDefault();
-      listItem.removeChild(newDirRow);
+      fileList.removeChild(newDirRow);
     }
   };
   // If you click outside the input, create the dir
@@ -89,10 +88,10 @@ const createDir = () => {
 
   fileList.insertBefore(newDirRow, fileList.children[1]);
 
-  input.focus();
+  nameInput.focus();
 };
 
-const renamePath = (editButton) => {
+const renamePath = (editButton, extension) => {
   // Replace the row's name you clicked on with an input (while saving the old name)
   let listItem = editButton.parentElement;
   let nameElement = listItem.querySelector(".file-list__item__name");
@@ -130,7 +129,14 @@ const renamePath = (editButton) => {
   listItem.replaceChild(nameInput, nameElement);
 
   nameInput.focus();
-  nameInput.select();
+
+  // Select only the name
+  if (extension) {
+    const indexOfBeginningOfExtension = nameInput.value.lastIndexOf(extension);
+    nameInput.setSelectionRange(0, indexOfBeginningOfExtension - 1, "backward"); // -1 to account for dot before extension
+  } else {
+    nameInput.select();
+  }
 };
 
 const tryDeletePath = (removeButton) => {
