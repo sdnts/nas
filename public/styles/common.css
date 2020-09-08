@@ -72,6 +72,7 @@ header {
   height: 32px;
   text-align: center;
   cursor: pointer;
+  outline: none;
 }
 
 .icon {

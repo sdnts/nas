@@ -33,9 +33,7 @@ const createFile = () => {
       location.reload();
     });
 
-    const formData = new FormData();
-    formData.append("file", file);
-    request.send(formData);
+    request.send(file);
   };
   fileInput.click();
 };
