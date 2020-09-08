@@ -3,6 +3,7 @@ use std::path::Path;
 
 mod app_state;
 mod file;
+mod hbs_helpers;
 mod routes;
 mod templates;
 
