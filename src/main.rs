@@ -1,11 +1,29 @@
 use anyhow::*;
+use lazy_static::lazy_static;
 use std::path::Path;
 
 mod app_state;
+mod config;
 mod file;
 mod hbs_helpers;
 mod routes;
 mod templates;
+
+use config::{NASConfig, NASTheme};
+
+lazy_static! {
+    // Unwrap all failables, because we want the panics
+
+    static ref CONFIG: NASConfig = NASConfig {
+        fs_root: "/home/ozark/nas_root/".to_string(),
+        cookie_secret: dotenv::var("NAS_COOKIE_SECRET")
+            .context("[main] Unable to locate NAS_COOKIE_SECRET")
+            .unwrap(),
+        hostname: "0zark".to_string(),
+        theme: NASTheme::Dark,
+        user: None,
+    };
+}
 
 #[async_std::main]
 async fn main() -> Result<()> {

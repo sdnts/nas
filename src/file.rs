@@ -4,8 +4,6 @@ use std::cmp::Ordering;
 use std::convert::{AsRef, Into};
 use std::path::{Path, PathBuf};
 
-const ROOT: &str = "/home/ozark/nas_root/";
-
 #[derive(Debug, Serialize, Eq, Ord)]
 pub struct NASFile {
     pub name: String,
@@ -26,19 +24,21 @@ impl NASFile {
         })?;
         let absolute_path_str = absolute_path_str.to_string();
 
-        if !absolute_path_str.starts_with(ROOT) {
+        if !absolute_path_str.starts_with(&crate::CONFIG.fs_root) {
             return Err(anyhow!(format!(
                 "Path is outside ROOT: {}",
                 &absolute_path_str
             )));
         }
 
-        let relative_path_str = absolute_path_str.strip_prefix(&ROOT).with_context(|| {
-            format!(
-                "[NASFile::from_pathbuf] Unable strip_prefix from {}",
-                &absolute_path_str
-            )
-        })?;
+        let relative_path_str = absolute_path_str
+            .strip_prefix(&crate::CONFIG.fs_root)
+            .with_context(|| {
+                format!(
+                    "[NASFile::from_pathbuf] Unable strip_prefix from {}",
+                    &absolute_path_str
+                )
+            })?;
         let relative_path_str = relative_path_str.to_string();
 
         let name = NASFile::file_name(&pathbuf)?;
@@ -60,7 +60,7 @@ impl NASFile {
         let relative_path_str = percent_encoding::percent_decode_str(&path).decode_utf8()?;
         let relative_path_str = relative_path_str.to_string();
 
-        let pathbuf = Path::new(ROOT).join(&relative_path_str);
+        let pathbuf = Path::new(&crate::CONFIG.fs_root).join(&relative_path_str);
 
         Self::from_pathbuf(pathbuf)
     }
@@ -163,7 +163,7 @@ impl NASFile {
             })?;
         let relative_path_str = relative_path_str.to_string();
 
-        let path = Path::new(ROOT).join(&relative_path_str);
+        let path = Path::new(&crate::CONFIG.fs_root).join(&relative_path_str);
         let path_str = path.to_str().with_context(|| {
             format!(
                 "[NASFile::relative_to_absolute_str] Unable to convert OsStr to str for: {}",

@@ -11,6 +11,7 @@ bytesize = "1.0.1"
 dotenv = "0.15.0"
 flate2 = { version = "1.0", features = ["zlib"], default-features = false }
 handlebars = { version = "3.4.0", features = ["dir_source"] }
+lazy_static = "1.4.0"
 percent-encoding = "2.1.0"
 serde = "1.0.115"
-tide = "0.13.0"
+tide = "0.13.0"uuid =  { version = "0.8.1", features = ["serde", "v4"] }
