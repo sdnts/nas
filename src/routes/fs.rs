@@ -71,7 +71,7 @@ pub async fn get(req: tide::Request<AppState>) -> Result<tide::Response, tide::E
                 &StreamPageParams {
                     hostname: "0zark".to_string(),
                     src: format!("/stream/{}", path),
-                    file_name: "S01E02".to_string(),
+                    file_name: nas_file.name.to_string(),
                 },
             )?,
             _ => templates.render(
