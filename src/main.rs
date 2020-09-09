@@ -4,6 +4,7 @@ use std::path::Path;
 
 mod app_state;
 mod config;
+mod db;
 mod file;
 mod hbs_helpers;
 mod routes;
