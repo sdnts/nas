@@ -7,6 +7,7 @@ edition = "2018"
 [dependencies]
 anyhow = "1.0.32"
 async-std = { version = "1.6.3", features = ["attributes"] }
+async-trait = "0.1.40"
 bytesize = "1.0.1"
 dotenv = "0.15.0"
 flate2 = { version = "1.0", features = ["zlib"], default-features = false }

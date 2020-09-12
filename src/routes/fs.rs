@@ -7,6 +7,9 @@ use crate::file::{NASFile, NASFileCategory};
 use crate::templates::{BadRequestPageParams, FileListPageParams, StreamPageParams};
 
 pub async fn get(req: tide::Request<AppState>) -> Result<tide::Response, tide::Error> {
+    let session: Option<String> = req.session().get("user-id");
+    dbg!(session);
+
     let templates = req.state().clone().templates;
     let path: String = req.param("path").unwrap_or_default();
 

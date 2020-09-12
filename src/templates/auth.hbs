@@ -24,14 +24,15 @@
 
     <section id="form">
       <form action="/auth" method="POST">
-        <input class="input" type="text" name="username" />
+        <input class="input" type="text" name="username" autofocus />
         <input class="input" type="password" name="password" />
 
-        <div id="submit-button">
-          <input class="button" type="submit" value="" />
+        <button id="submit-button" class="button" value="">
           <div class="icon" id="submit-button__icon" data-icon="chevron-right"></div>
-        </div>
+        </button>
       </form>
+
+      <span id="error">{{ message }}</span>
     </section>
   </main>
 </body>
