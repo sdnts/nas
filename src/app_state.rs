@@ -1,3 +1,4 @@
+use anyhow::*;
 use handlebars::Handlebars;
 use std::sync::Arc;
 
@@ -9,17 +10,15 @@ pub struct AppState {
 }
 
 impl AppState {
-    pub fn new() -> Self {
+    pub fn new() -> Result<Self> {
         let mut handlebars = Handlebars::new();
-        handlebars
-            .register_templates_directory(".hbs", "src/templates/")
-            .unwrap();
+        handlebars.register_templates_directory(".hbs", "src/templates/")?;
 
         handlebars.register_helper("lowercase", Box::new(hbs_helpers::lowercase));
         handlebars.register_helper("filesize", Box::new(hbs_helpers::filesize));
 
-        Self {
+        Ok(Self {
             templates: Arc::new(handlebars),
-        }
+        })
     }
 }

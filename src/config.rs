@@ -1,7 +1,5 @@
 use serde::Serialize;
 
-use crate::db::User;
-
 #[derive(Debug, Serialize)]
 pub enum NASTheme {
     Light,
@@ -15,5 +13,4 @@ pub struct NASConfig {
     pub cookie_secret: String,
     pub hostname: String,
     pub theme: NASTheme,
-    pub user: Option<User>,
 }
