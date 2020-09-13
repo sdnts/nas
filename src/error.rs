@@ -63,15 +63,6 @@ pub enum NASError {
 
     #[error("Unable to delete file / directory at path {pathbuf:?}")]
     PathDeleteError { pathbuf: PathBuf },
-
-    #[error("Encountered an anyhow error")]
-    AnyhowError,
-}
-
-impl From<anyhow::Error> for NASError {
-    fn from(e: anyhow::Error) -> Self {
-        NASError::AnyhowError
-    }
 }
 
 impl actix_web::error::ResponseError for NASError {}
