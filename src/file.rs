@@ -18,7 +18,11 @@ pub struct NASFile {
 impl NASFile {
     pub fn from_pathbuf(pathbuf: PathBuf) -> Result<Self, NASError> {
         if !pathbuf.starts_with(&crate::CONFIG.fs_root) {
-            return Err(NASError::PathAccessDenied { pathbuf: pathbuf });
+            return Err(NASError::PathAccessDenied { pathbuf });
+        }
+
+        if !pathbuf.exists() {
+            return Err(NASError::NonExistentPath { pathbuf });
         }
 
         let absolute_path_str = pathbuf.to_str().ok_or(NASError::InvalidPathBuf {
