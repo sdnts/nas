@@ -1,8 +1,9 @@
-use anyhow::*;
 use serde::Serialize;
 use std::cmp::Ordering;
 use std::convert::{AsRef, Into};
 use std::path::{Path, PathBuf};
+
+use crate::error::NASError;
 
 #[derive(Debug, Serialize, Eq, Ord)]
 pub struct NASFile {
@@ -15,29 +16,20 @@ pub struct NASFile {
 }
 
 impl NASFile {
-    pub fn from_pathbuf(pathbuf: PathBuf) -> Result<Self> {
-        let absolute_path_str = pathbuf.to_str().with_context(|| {
-            format!(
-                "[NASFile::from_pathbuf] pathbuf.to_str() failed. pathbuf: {:?}",
-                &pathbuf
-            )
+    pub fn from_pathbuf(pathbuf: PathBuf) -> Result<Self, NASError> {
+        if !pathbuf.starts_with(&crate::CONFIG.fs_root) {
+            return Err(NASError::PathAccessDenied { pathbuf: pathbuf });
+        }
+
+        let absolute_path_str = pathbuf.to_str().ok_or(NASError::InvalidPathBuf {
+            pathbuf: pathbuf.to_owned(),
         })?;
         let absolute_path_str = absolute_path_str.to_string();
 
-        if !absolute_path_str.starts_with(&crate::CONFIG.fs_root) {
-            return Err(anyhow!(format!(
-                "Path is outside ROOT: {}",
-                &absolute_path_str
-            )));
-        }
-
         let relative_path_str = absolute_path_str
             .strip_prefix(&crate::CONFIG.fs_root)
-            .with_context(|| {
-                format!(
-                    "[NASFile::from_pathbuf] Unable strip_prefix from {}",
-                    &absolute_path_str
-                )
+            .ok_or(NASError::PathAccessDenied {
+                pathbuf: pathbuf.to_owned(),
             })?;
         let relative_path_str = relative_path_str.to_string();
 
@@ -56,10 +48,8 @@ impl NASFile {
         })
     }
 
-    pub fn from_relative_path_str(path: &str) -> Result<Self> {
-        let relative_path_str = percent_encoding::percent_decode_str(&path).decode_utf8()?;
-        let relative_path_str = relative_path_str.to_string();
-
+    pub fn from_relative_path_str(path: &str) -> Result<Self, NASError> {
+        let relative_path_str = path.to_string();
         let pathbuf = Path::new(&crate::CONFIG.fs_root).join(&relative_path_str);
 
         Self::from_pathbuf(pathbuf)
@@ -67,16 +57,13 @@ impl NASFile {
 }
 
 impl NASFile {
-    fn file_name(pathbuf: &PathBuf) -> Result<String> {
-        let file_name = pathbuf.file_name().with_context(|| {
-            format!(
-                "[NASFile::file_name] PathBuf.file_name() failed, pathbuf: {:?}",
-                &pathbuf
-            )
+    fn file_name(pathbuf: &PathBuf) -> Result<String, NASError> {
+        let file_name = pathbuf.file_name().ok_or(NASError::FileNameError {
+            pathbuf: pathbuf.to_owned(),
         })?;
-        let file_name = file_name
-            .to_str()
-            .context("[NASFile::file_name] Unable to convert OsStr to str")?;
+        let file_name = file_name.to_str().ok_or(NASError::OsStrConversionError {
+            osstring: file_name.to_os_string(),
+        })?;
         Ok(file_name.to_string())
     }
 
@@ -116,59 +103,37 @@ impl NASFile {
         }
     }
 
-    fn extension(pathbuf: &PathBuf) -> Result<String> {
+    fn extension(pathbuf: &PathBuf) -> Result<String, NASError> {
         if pathbuf.is_dir() {
             return Ok("".to_string());
         }
 
-        let extension = pathbuf.extension().with_context(|| {
-            format!(
-                "[NASFile::extension] Unable to compute extension from PathBuf for {:?}",
-                pathbuf
-            )
+        let extension = pathbuf.extension().ok_or(NASError::FileExtensionError {
+            pathbuf: pathbuf.to_owned(),
         })?;
-        let extension = extension.to_str().with_context(|| {
-            format!(
-                "[NASFile::extension] Unable to convert OsStr to str for {:?}",
-                extension
-            )
+        let extension = extension.to_str().ok_or(NASError::OsStrConversionError {
+            osstring: extension.to_os_string(),
         })?;
         Ok(extension.to_string())
     }
 
-    fn size_bytes(pathbuf: &PathBuf) -> Result<u64> {
+    fn size_bytes(pathbuf: &PathBuf) -> Result<u64, NASError> {
         if pathbuf.is_dir() {
             return Ok(0);
         }
 
-        let size = pathbuf.metadata().with_context(|| {
-            format!(
-                "[NASFile::size_bytes] Unable to compute metadata from {:?}",
-                pathbuf
-            )
+        let size = pathbuf.metadata().map_err(|_| NASError::FileSizeError {
+            pathbuf: pathbuf.to_owned(),
         })?;
         let size = size.len();
 
         Ok(size)
     }
 
-    pub fn relative_to_absolute_str(path: &str) -> Result<String> {
-        let relative_path_str = percent_encoding::percent_decode_str(&path)
-            .decode_utf8()
-            .with_context(|| {
-                format!(
-                    "[NASFile::relative_to_absolute_str] Percent decode failed for: {}",
-                    path
-                )
-            })?;
-        let relative_path_str = relative_path_str.to_string();
-
-        let path = Path::new(&crate::CONFIG.fs_root).join(&relative_path_str);
-        let path_str = path.to_str().with_context(|| {
-            format!(
-                "[NASFile::relative_to_absolute_str] Unable to convert OsStr to str for: {}",
-                relative_path_str
-            )
+    pub fn relative_to_absolute_str(path: &str) -> Result<String, NASError> {
+        let pathbuf = Path::new(&crate::CONFIG.fs_root).join(path);
+        let path_str = pathbuf.to_str().ok_or(NASError::InvalidPathBuf {
+            pathbuf: pathbuf.to_owned(),
         })?;
 
         Ok(path_str.to_string())
