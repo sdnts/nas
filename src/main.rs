@@ -10,6 +10,7 @@ mod error;
 mod file;
 mod fs;
 mod hbs_helpers;
+mod stream;
 mod templates;
 mod utils;
 // mod db;
@@ -46,6 +47,7 @@ async fn main() -> Result<()> {
             .route("/fs/{path:.*}", web::post().to(fs::post))
             .route("/fs/{path:.*}", web::put().to(fs::put))
             .route("/fs/{path:.*}", web::delete().to(fs::delete))
+            .route("/stream/{path:.*}", web::get().to(stream::get))
     })
     .bind("127.0.0.1:8000")?
     .run()

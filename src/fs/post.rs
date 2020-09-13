@@ -8,7 +8,7 @@ use crate::error::NASError;
 use crate::file::NASFile;
 use crate::utils::strip_trailing_char;
 
-pub async fn post(path: web::Path<String>, body: web::Bytes) -> Result<impl Responder, NASError> {
+pub async fn post(path: web::Path<String>, body: web::Bytes) -> Result<impl Responder> {
     // The NormalizePath middleware will add a trailing slash at the end of the path, so we must remove it
     let path = strip_trailing_char(path.clone());
     let path = NASFile::relative_to_absolute_str(&path)?;

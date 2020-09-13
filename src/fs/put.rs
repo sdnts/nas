@@ -6,7 +6,7 @@ use crate::error::NASError;
 use crate::file::NASFile;
 use crate::utils::strip_trailing_char;
 
-pub async fn put(path: web::Path<String>, name: String) -> Result<impl Responder, NASError> {
+pub async fn put(path: web::Path<String>, name: String) -> Result<impl Responder> {
     // The NormalizePath middleware will add a trailing slash at the end of the path, so we must remove it
     let path = strip_trailing_char(path.clone());
 
@@ -25,7 +25,8 @@ pub async fn put(path: web::Path<String>, name: String) -> Result<impl Responder
         // Behaviour differs with platform, so exit early
         Err(NASError::PathExistsError {
             pathbuf: renamed_pathbuf.to_owned(),
-        })
+        }
+        .into())
     } else {
         fs::rename(&nas_file, &renamed_pathbuf).map_err(|_| NASError::PathRenameError {
             pathbuf: renamed_pathbuf,

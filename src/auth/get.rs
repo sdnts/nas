@@ -1,5 +1,7 @@
-use actix_web::Responder;
+use actix_web::{Responder, Result};
 
-pub async fn get() -> impl Responder {
-    format!("/auth get")
+use crate::error::NASError;
+
+pub async fn get() -> Result<impl Responder> {
+    Ok(format!("/auth get"))
 }

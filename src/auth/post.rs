@@ -1,5 +1,7 @@
-use actix_web::Responder;
+use actix_web::{Responder, Result};
 
-pub async fn post() -> impl Responder {
-    format!("/auth post")
+use crate::error::NASError;
+
+pub async fn post() -> Result<impl Responder> {
+    Ok(format!("/auth post"))
 }

@@ -1,15 +1,11 @@
 use actix_web::{web, HttpResponse, Responder, Result};
 use std::fs;
 
-use crate::app_state::AppState;
 use crate::error::NASError;
 use crate::file::{NASFile, NASFileCategory};
 use crate::utils::strip_trailing_char;
 
-pub async fn delete(
-    path: web::Path<String>,
-    app_state: web::Data<AppState>,
-) -> Result<impl Responder, NASError> {
+pub async fn delete(path: web::Path<String>) -> Result<impl Responder> {
     // The NormalizePath middleware will add a trailing slash at the end of the path, so we must remove it
     let path = strip_trailing_char(path.clone());
     let nas_file = NASFile::from_relative_path_str(&path)?;

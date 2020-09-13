@@ -11,7 +11,7 @@ use crate::utils::strip_trailing_char;
 pub async fn get(
     path: web::Path<String>,
     app_state: web::Data<AppState>,
-) -> Result<impl Responder, NASError> {
+) -> Result<impl Responder> {
     let templates = &app_state.templates;
 
     // The NormalizePath middleware will add a trailing slash at the end of the path, so we must remove it
@@ -33,7 +33,7 @@ pub async fn get(
                     })
                     .collect::<Result<Vec<NASFile>>>()
                     .map_err(|_| NASError::PathReadError {
-                        path: nas_file.absolute_path_str.to_string(),
+                        path: nas_file.relative_path_str.to_string(),
                     })?;
                 files.sort();
 
