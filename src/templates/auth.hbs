@@ -3,7 +3,11 @@
 <head>
   <meta charset="UTF-8" />
 
-  <title>{{ hostname }}'s NAS</title>
+  <title>NAS</title>
+
+  {{#if eq logged_in true}}
+  <meta http-equiv="refresh" content="5" url="{{ redirect_url }}" />
+  {{/if}}
 
   <link rel="icon" href="/public/icons/nas.svg">
   <link rel="stylesheet" href="/public/styles/common.css" />
@@ -18,8 +22,10 @@
   </header>
 
   <main>
+    {{logged_in}}
+    {{redirect_url}}
     <section id="section__title">
-      <span> {{ hostname }}'s NAS</span>
+      <span>NAS</span>
     </section>
 
     <section id="form">

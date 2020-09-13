@@ -6,9 +6,7 @@ use std::path::PathBuf;
 use crate::app_state::AppState;
 use crate::error::NASError;
 use crate::file::{NASFile, NASFileCategory};
-use crate::templates::{
-    BadRequestPageParams, FSPageParams, StreamPageParams, UnauthorizedPageParams,
-};
+use crate::templates::{AuthPageParams, BadRequestPageParams, FSPageParams, StreamPageParams};
 use crate::utils::strip_trailing_char;
 
 pub async fn get(
@@ -16,23 +14,24 @@ pub async fn get(
     app_state: web::Data<AppState>,
     path: web::Path<String>,
 ) -> Result<impl Responder> {
-    let templates = &app_state.templates;
     let identity = identity.identity();
+    let templates = &app_state.templates;
 
     if let None = identity {
+        println!();
         return Ok(HttpResponse::Unauthorized()
             .header(http::header::CONTENT_TYPE, "text/html;charset=utf-8")
             .body(
                 templates
                     .render(
-                        "401",
-                        &UnauthorizedPageParams {
-                            title: "/fs".to_string(),
-                            hostname: "0zark".to_string(),
-                            username: "0zark".to_string(),
+                        "auth",
+                        &AuthPageParams {
+                            message: None,
+                            logged_in: false,
+                            redirect_url: Some(format!("/fs/{}", path.clone())),
                         },
                     )
-                    .map_err(|_| NASError::TemplateRenderError { template: "401" })?,
+                    .map_err(|_| NASError::TemplateRenderError { template: "auth" })?,
             ));
     }
 
@@ -50,7 +49,7 @@ pub async fn get(
                     path: nas_file.absolute_path_str.to_string(),
                 })?;
                 let mut files = contents
-                    .map(move |f| -> Result<NASFile> {
+                    .map(|f| -> Result<NASFile> {
                         let file = f?;
                         let file = NASFile::from_pathbuf(file.path(), &username)?;
                         Ok(file)
@@ -93,9 +92,7 @@ pub async fn get(
                     .render(
                         "fs",
                         &FSPageParams {
-                            title: "/fs".to_string(),
-                            hostname: "0zark".to_string(),
-                            username: "0zark".to_string(),
+                            username,
                             breadcrumbs,
                             parent_href,
                             files,
@@ -107,7 +104,6 @@ pub async fn get(
                 .render(
                     "stream",
                     &StreamPageParams {
-                        hostname: "0zark".to_string(),
                         src: format!("/stream/{}", path),
                         file_name: nas_file.name.to_string(),
                     },
@@ -118,8 +114,7 @@ pub async fn get(
                     "400",
                     &BadRequestPageParams {
                         title: "/fs".to_string(),
-                        hostname: "0zark".to_string(),
-                        username: "0zark".to_string(),
+                        username,
                     },
                 )
                 .map_err(|_| NASError::TemplateRenderError { template: "400" })?,

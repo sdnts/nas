@@ -26,7 +26,6 @@ lazy_static! {
         fs_root: "/home/ozark/nas_root".to_string(),
         cookie_secret: dotenv::var("NAS_COOKIE_SECRET")
             .unwrap(),
-        hostname: "0zark".to_string(),
         theme: config::NASTheme::Dark
     };
 }

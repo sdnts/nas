@@ -5,7 +5,7 @@ use std::fs;
 use crate::app_state::AppState;
 use crate::error::NASError;
 use crate::file::{NASFile, NASFileCategory};
-use crate::templates::UnauthorizedPageParams;
+use crate::templates::AuthPageParams;
 use crate::utils::strip_trailing_char;
 
 pub async fn delete(
@@ -22,14 +22,14 @@ pub async fn delete(
             .body(
                 templates
                     .render(
-                        "401",
-                        &UnauthorizedPageParams {
-                            title: "/fs".to_string(),
-                            hostname: "0zark".to_string(),
-                            username: "0zark".to_string(),
+                        "auth",
+                        &AuthPageParams {
+                            logged_in: false,
+                            message: Some("Protected resource, please log in".to_string()),
+                            redirect_url: Some(path.clone()),
                         },
                     )
-                    .map_err(|_| NASError::TemplateRenderError { template: "401" })?,
+                    .map_err(|_| NASError::TemplateRenderError { template: "auth" })?,
             ));
     }
 

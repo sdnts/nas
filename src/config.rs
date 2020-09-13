@@ -11,6 +11,5 @@ pub enum NASTheme {
 pub struct NASConfig {
     pub fs_root: String,
     pub cookie_secret: String,
-    pub hostname: String,
     pub theme: NASTheme,
 }
