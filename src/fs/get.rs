@@ -35,9 +35,11 @@ pub async fn get(
             ));
     }
 
+    let user_id = identity.identity().unwrap();
+
     // The NormalizePath middleware will add a trailing slash at the end of the path, so we must remove it
     let path = strip_trailing_char(path.clone());
-    let nas_file = NASFile::from_relative_path_str(&path)?;
+    let nas_file = NASFile::from_relative_path_str(&path, &user_id)?;
 
     let response_body = {
         match nas_file.category {
@@ -49,7 +51,7 @@ pub async fn get(
                 let mut files = contents
                     .map(move |f| -> Result<NASFile> {
                         let file = f?;
-                        let file = NASFile::from_pathbuf(file.path())?;
+                        let file = NASFile::from_pathbuf(file.path(), &user_id)?;
                         Ok(file)
                     })
                     .collect::<Result<Vec<NASFile>>>()

@@ -34,11 +34,13 @@ pub async fn put(
             ));
     }
 
+    let user_id = identity.identity().unwrap();
+
     // The NormalizePath middleware will add a trailing slash at the end of the path, so we must remove it
     let path = strip_trailing_char(path.clone());
 
-    let nas_file = NASFile::from_relative_path_str(&path)?;
-    let renamed_file = NASFile::from_relative_path_str(&path)?;
+    let nas_file = NASFile::from_relative_path_str(&path, &user_id)?;
+    let renamed_file = NASFile::from_relative_path_str(&path, &user_id)?;
 
     let renamed_pathbuf: PathBuf = renamed_file.into();
     let renamed_pathbuf = renamed_pathbuf

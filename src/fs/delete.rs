@@ -32,9 +32,11 @@ pub async fn delete(
             ));
     }
 
+    let user_id = identity.identity().unwrap();
+
     // The NormalizePath middleware will add a trailing slash at the end of the path, so we must remove it
     let path = strip_trailing_char(path.clone());
-    let nas_file = NASFile::from_relative_path_str(&path)?;
+    let nas_file = NASFile::from_relative_path_str(&path, &user_id)?;
 
     match nas_file.category {
         NASFileCategory::Directory => {

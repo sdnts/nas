@@ -23,7 +23,7 @@ lazy_static! {
     // Unwrap all failables, because we want the panics
 
     static ref CONFIG: config::NASConfig = config::NASConfig {
-        fs_root: "/home/ozark/nas_root/0zark".to_string(),
+        fs_root: "/home/ozark/nas_root".to_string(),
         cookie_secret: dotenv::var("NAS_COOKIE_SECRET")
             .unwrap(),
         hostname: "0zark".to_string(),
