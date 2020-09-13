@@ -1,13 +1,39 @@
-use actix_web::{web, HttpResponse, Responder, Result};
+use actix_identity::Identity;
+use actix_web::{http, web, HttpResponse, Responder, Result};
 use flate2::{write::GzEncoder, Compression};
 use std::fs;
 use std::io::prelude::*;
 
+use crate::app_state::AppState;
 use crate::error::NASError;
 use crate::file::{NASFile, NASFileCategory};
+use crate::templates::UnauthorizedPageParams;
 use crate::utils::strip_trailing_char;
 
-pub async fn get(path: web::Path<String>) -> Result<impl Responder> {
+pub async fn get(
+    identity: Identity,
+    app_state: web::Data<AppState>,
+    path: web::Path<String>,
+) -> Result<impl Responder> {
+    let templates = &app_state.templates;
+
+    if let None = identity.identity() {
+        return Ok(HttpResponse::Unauthorized()
+            .header(http::header::CONTENT_TYPE, "text/html;charset=utf-8")
+            .body(
+                templates
+                    .render(
+                        "401",
+                        &UnauthorizedPageParams {
+                            title: "/fs".to_string(),
+                            hostname: "0zark".to_string(),
+                            username: "0zark".to_string(),
+                        },
+                    )
+                    .map_err(|_| NASError::TemplateRenderError { template: "401" })?,
+            ));
+    }
+
     // The NormalizePath middleware will add a trailing slash at the end of the path, so we must remove it
     let path = strip_trailing_char(path.clone());
     let nas_file = NASFile::from_relative_path_str(&path)?;
@@ -29,18 +55,21 @@ pub async fn get(path: web::Path<String>) -> Result<impl Responder> {
 
         // And send it back
         HttpResponse::Ok()
-            .body(file_bytes)
-            .with_header("Access-Control-Allow-Origin", "*")
-            .with_header("Content-Encoding", "gzip")
-            .with_header("Access-Control-Expose-Headers", "Content-Length")
-            .with_header("Access-Control-Allow-Headers", "Range")
-            .with_header("Content-Type", {
+            .header(http::header::ACCESS_CONTROL_ALLOW_ORIGIN, "*")
+            .header(http::header::CONTENT_ENCODING, "gzip")
+            .header(
+                http::header::ACCESS_CONTROL_EXPOSE_HEADERS,
+                "Content-Length",
+            )
+            .header(http::header::ACCESS_CONTROL_ALLOW_HEADERS, "Range")
+            .header(http::header::CONTENT_TYPE, {
                 match nas_file.category {
                     NASFileCategory::StreamPlaylist => "application/vnd.apple.mpegurl",
                     NASFileCategory::StreamSegment => "application/octet-stream",
                     _ => "",
                 }
             })
+            .body(file_bytes)
     };
 
     Ok(response)

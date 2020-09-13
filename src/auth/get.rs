@@ -1,13 +1,10 @@
-use actix_web::{web, HttpResponse, Responder, Result};
+use actix_web::{http, web, HttpResponse, Responder, Result};
 
 use crate::app_state::AppState;
 use crate::error::NASError;
 use crate::templates::AuthPageParams;
 
-pub async fn get(
-    path: web::Path<String>,
-    app_state: web::Data<AppState>,
-) -> Result<impl Responder> {
+pub async fn get(app_state: web::Data<AppState>) -> Result<impl Responder> {
     let templates = &app_state.templates;
 
     let response_body = templates
@@ -22,6 +19,6 @@ pub async fn get(
         .map_err(|_| NASError::TemplateRenderError { template: "auth" })?;
 
     Ok(HttpResponse::Ok()
-        .body(response_body)
-        .with_header("Content-Type", "text/html;charset=utf-8"))
+        .header(http::header::CONTENT_TYPE, "text/html;charset=utf-8")
+        .body(response_body))
 }

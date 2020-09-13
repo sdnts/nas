@@ -1,12 +1,39 @@
-use actix_web::{web, HttpResponse, Responder, Result};
+use actix_identity::Identity;
+use actix_web::{http, web, HttpResponse, Responder, Result};
 use std::fs;
 use std::path::PathBuf;
 
+use crate::app_state::AppState;
 use crate::error::NASError;
 use crate::file::NASFile;
+use crate::templates::UnauthorizedPageParams;
 use crate::utils::strip_trailing_char;
 
-pub async fn put(path: web::Path<String>, name: String) -> Result<impl Responder> {
+pub async fn put(
+    identity: Identity,
+    app_state: web::Data<AppState>,
+    path: web::Path<String>,
+    name: String,
+) -> Result<impl Responder> {
+    let templates = &app_state.templates;
+
+    if let None = identity.identity() {
+        return Ok(HttpResponse::Unauthorized()
+            .header(http::header::CONTENT_TYPE, "text/html;charset=utf-8")
+            .body(
+                templates
+                    .render(
+                        "401",
+                        &UnauthorizedPageParams {
+                            title: "/fs".to_string(),
+                            hostname: "0zark".to_string(),
+                            username: "0zark".to_string(),
+                        },
+                    )
+                    .map_err(|_| NASError::TemplateRenderError { template: "401" })?,
+            ));
+    }
+
     // The NormalizePath middleware will add a trailing slash at the end of the path, so we must remove it
     let path = strip_trailing_char(path.clone());
 
@@ -32,6 +59,6 @@ pub async fn put(path: web::Path<String>, name: String) -> Result<impl Responder
             pathbuf: renamed_pathbuf,
         })?;
 
-        Ok(HttpResponse::Ok())
+        Ok(HttpResponse::Ok().finish())
     }
 }

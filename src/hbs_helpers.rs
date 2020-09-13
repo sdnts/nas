@@ -1,4 +1,3 @@
-use anyhow::*;
 use bytesize::ByteSize;
 use handlebars::{Context, Handlebars, Helper, JsonRender, Output, RenderContext, RenderError};
 
