@@ -17,7 +17,7 @@ pub struct AuthPageParams {
 }
 
 #[derive(Serialize)]
-pub struct FileListPageParams {
+pub struct FSPageParams {
     pub title: String,
     pub hostname: String,
     pub username: String,

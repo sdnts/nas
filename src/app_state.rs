@@ -1,12 +1,11 @@
 use anyhow::*;
 use handlebars::Handlebars;
-use std::sync::Arc;
 
 use crate::hbs_helpers;
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct AppState {
-    pub templates: Arc<Handlebars<'static>>,
+    pub templates: Handlebars<'static>,
 }
 
 impl AppState {
@@ -18,7 +17,7 @@ impl AppState {
         handlebars.register_helper("filesize", Box::new(hbs_helpers::filesize));
 
         Ok(Self {
-            templates: Arc::new(handlebars),
+            templates: handlebars,
         })
     }
 }
