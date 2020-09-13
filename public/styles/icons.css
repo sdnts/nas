@@ -52,6 +52,11 @@
   mask: url(/public/icons/nas.svg) no-repeat center;
 }
 
+.icon[data-icon="power"] {
+  -webkit-mask: url(/public/icons/power.svg) no-repeat center;
+  mask: url(/public/icons/power.svg) no-repeat center;
+}
+
 .icon[data-icon="streamplaylist"] {
   -webkit-mask: url(/public/icons/streamplaylist.svg) no-repeat center;
   mask: url(/public/icons/streamplaylist.svg) no-repeat center;

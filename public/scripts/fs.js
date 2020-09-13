@@ -163,3 +163,15 @@ const deletePath = (name) => {
     }
   });
 };
+
+const logout = () => {
+  fetch(`/auth`, {
+    method: "DELETE",
+  }).then((res) => {
+    if (res.status === 200) {
+      window.location.href = "/auth";
+    } else {
+      console.error("Something went wrong");
+    }
+  });
+};

@@ -50,7 +50,8 @@ async fn main() -> Result<()> {
             .service(
                 web::scope("/auth")
                     .route("/", web::get().to(auth::get))
-                    .route("/", web::post().to(auth::post)),
+                    .route("/", web::post().to(auth::post))
+                    .route("/", web::delete().to(auth::delete)),
             )
             .service(
                 web::scope("/fs")

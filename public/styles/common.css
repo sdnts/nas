@@ -50,6 +50,10 @@ header {
   color: var(--secondary-text-color);
 }
 
+#logout-button {
+  margin-left: 20px;
+}
+
 .input {
   border: 2px solid var(--secondary-text-color);
   border-radius: var(--border-radius);
