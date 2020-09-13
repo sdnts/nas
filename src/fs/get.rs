@@ -79,8 +79,9 @@ pub async fn get(
                     if breadcrumbs.is_empty() {
                         vec![]
                     } else {
-                        breadcrumbs
-                            .iter()
+                        let mut b_iter = breadcrumbs.iter();
+                        b_iter.next(); // Remove first segment, since it will always be `/`
+                        b_iter
                             .take(breadcrumbs.len() - 1)
                             .map(|b| b.to_string())
                             .collect::<Vec<String>>()
