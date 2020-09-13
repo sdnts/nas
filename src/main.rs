@@ -22,8 +22,7 @@ lazy_static! {
 
     static ref CONFIG: config::NASConfig = config::NASConfig {
         fs_root: "/home/ozark/nas_root".to_string(),
-        cookie_secret: dotenv::var("NAS_COOKIE_SECRET")
-            .unwrap(),
+        cookie_secret: "012345678901234567890123456789012".to_string(),
         theme: config::NASTheme::Dark
     };
 }

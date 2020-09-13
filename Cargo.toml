@@ -10,7 +10,6 @@ actix-rt = "1.1.1"
 actix-identity = "0.3.0"
 actix-web = "3.0.1"
 bytesize = "1.0.1"
-dotenv = "0.15.0"
 flate2 = { version = "1.0", features = ["zlib"], default-features = false }
 handlebars = { version = "3.4.0", features = ["dir_source"] }
 hex = "0.4.2"
