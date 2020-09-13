@@ -14,15 +14,13 @@ pub async fn post(path: web::Path<String>, body: web::Bytes) -> Result<impl Resp
     let path = NASFile::relative_to_absolute_str(&path)?;
     let path = Path::new(&path);
 
-    println!("Body {:?}!", body);
-
     if body.is_empty() {
         // Create Dir at path
         fs::create_dir_all(path).map_err(|_| NASError::PathCreateError {
             pathbuf: path.into(),
         })?;
     } else {
-        //     // Create file at path
+        // Create file at path
         let mut file = OpenOptions::new()
             .create(true)
             .write(true)

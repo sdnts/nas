@@ -34,8 +34,14 @@ pub enum NASError {
     #[error("Unable to calculate breadcrumbs for {pathbuf:?}")]
     BreadcrumbError { pathbuf: PathBuf },
 
-    #[error("Unable to create file / directory at path{pathbuf:?}")]
+    #[error("Unable to create file / directory at path {pathbuf:?}")]
     PathCreateError { pathbuf: PathBuf },
+
+    #[error("Unable to create file / directory at path {pathbuf:?} because a file already exists at this path")]
+    PathExistsError { pathbuf: PathBuf },
+
+    #[error("Unable to rename file / directory at path {pathbuf:?}")]
+    PathRenameError { pathbuf: PathBuf },
 
     #[error("Encountered an anyhow error")]
     AnyhowError,
