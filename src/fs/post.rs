@@ -28,7 +28,7 @@ pub async fn post(
                         &AuthPageParams {
                             logged_in: false,
                             message: Some("Protected resource, please log in".to_string()),
-                            redirect_url: Some(path.clone()),
+                            redirect_url: None,
                         },
                     )
                     .map_err(|_| NASError::TemplateRenderError { template: "auth" })?,

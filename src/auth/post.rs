@@ -1,5 +1,5 @@
 use actix_identity::Identity;
-use actix_web::{web, HttpResponse, Responder, Result};
+use actix_web::{http, web, HttpResponse, Responder, Result};
 use serde::Deserialize;
 use sha2::{Digest, Sha512};
 
@@ -12,6 +12,7 @@ use crate::templates::AuthPageParams;
 pub struct FormParams {
     username: String,
     password: String,
+    redirect_url: Option<String>,
 }
 
 pub async fn post(
@@ -31,36 +32,35 @@ pub async fn post(
 
     if let Ok(user) = user {
         identity.remember(user.username.to_string());
-        dbg!(&identity.identity());
 
         let response_body = templates
             .render(
                 "auth",
                 &AuthPageParams {
-                    title: "/auth".to_string(),
-                    hostname: "0zark".to_string(),
-                    message: "Logged in".to_string(),
+                    message: Some("Logged in, redirecting...".to_string()),
+                    logged_in: true,
+                    redirect_url: params.redirect_url.to_owned(),
                 },
             )
             .map_err(|_| NASError::TemplateRenderError { template: "auth" })?;
 
         Ok(HttpResponse::Ok()
-            .header("Content-Type", "text/html;charset=utf-8")
+            .header(http::header::CONTENT_TYPE, "text/html;charset=utf-8")
             .body(response_body))
     } else {
         let response_body = templates
             .render(
                 "auth",
                 &AuthPageParams {
-                    title: "/auth".to_string(),
-                    hostname: "0zark".to_string(),
-                    message: "Invalid credentials".to_string(),
+                    message: Some("Invalid credentials".to_string()),
+                    logged_in: false,
+                    redirect_url: None,
                 },
             )
             .map_err(|_| NASError::TemplateRenderError { template: "auth" })?;
 
         Ok(HttpResponse::Ok()
-            .header("Content-Type", "text/html;charset=utf-8")
+            .header(http::header::CONTENT_TYPE, "text/html;charset=utf-8")
             .body(response_body))
     }
 }

@@ -2,12 +2,11 @@
 
 <head>
   <meta charset="UTF-8" />
+  {{#if (eq logged_in true)}}
+  <meta http-equiv="refresh" content="0;url={{redirect_url}}" />
+  {{/if}}
 
   <title>NAS</title>
-
-  {{#if eq logged_in true}}
-  <meta http-equiv="refresh" content="5" url="{{ redirect_url }}" />
-  {{/if}}
 
   <link rel="icon" href="/public/icons/nas.svg">
   <link rel="stylesheet" href="/public/styles/common.css" />
@@ -22,8 +21,6 @@
   </header>
 
   <main>
-    {{logged_in}}
-    {{redirect_url}}
     <section id="section__title">
       <span>NAS</span>
     </section>
@@ -32,6 +29,7 @@
       <form action="/auth" method="POST">
         <input class="input" type="text" name="username" autofocus />
         <input class="input" type="password" name="password" />
+        <input type="hidden" name="redirect_url" value="{{redirect_url}}" />
 
         <button id="submit-button" class="button" value="">
           <div class="icon" id="submit-button__icon" data-icon="chevron-right"></div>
