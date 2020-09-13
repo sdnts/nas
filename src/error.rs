@@ -16,12 +16,6 @@ pub enum NASError {
     #[error("Unable to read User from DB")]
     UserReadError,
 
-    #[error("Unable to create Session in DB")]
-    SessionCreateError,
-
-    #[error("Unable to read Session from DB")]
-    SessionReadError,
-
     #[error("Unable to resolve FS Root for user {username:?} from {fs_root:?}")]
     FSRootResolutionError { fs_root: PathBuf, username: String },
 

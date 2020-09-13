@@ -16,8 +16,9 @@ pub async fn put(
     name: String,
 ) -> Result<impl Responder> {
     let templates = &app_state.templates;
+    let identity = identity.identity();
 
-    if let None = identity.identity() {
+    if let None = identity {
         return Ok(HttpResponse::Unauthorized()
             .header(http::header::CONTENT_TYPE, "text/html;charset=utf-8")
             .body(
@@ -34,13 +35,13 @@ pub async fn put(
             ));
     }
 
-    let user_id = identity.identity().unwrap();
+    let username = identity.unwrap();
 
     // The NormalizePath middleware will add a trailing slash at the end of the path, so we must remove it
     let path = strip_trailing_char(path.clone());
 
-    let nas_file = NASFile::from_relative_path_str(&path, &user_id)?;
-    let renamed_file = NASFile::from_relative_path_str(&path, &user_id)?;
+    let nas_file = NASFile::from_relative_path_str(&path, &username)?;
+    let renamed_file = NASFile::from_relative_path_str(&path, &username)?;
 
     let renamed_pathbuf: PathBuf = renamed_file.into();
     let renamed_pathbuf = renamed_pathbuf

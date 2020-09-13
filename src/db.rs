@@ -34,16 +34,6 @@ impl NASDB {
             )
             .map_err(|_| NASError::DBInitializationError)?;
 
-        connection
-            .execute(
-                "CREATE TABLE IF NOT EXISTS Sessions (
-                id TEXT PRIMARY KEY,
-                value TEXT UNIQUE
-            )",
-                params![],
-            )
-            .map_err(|_| NASError::DBInitializationError)?;
-
         Ok(())
     }
 }

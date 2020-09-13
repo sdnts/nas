@@ -61,7 +61,9 @@ impl NASFile {
 
     pub fn from_relative_path_str(path: &str, username: &str) -> Result<Self, NASError> {
         let relative_path_str = path.to_string();
-        let pathbuf = Path::new(&crate::CONFIG.fs_root).join(&relative_path_str);
+        let pathbuf = Path::new(&crate::CONFIG.fs_root)
+            .join(username)
+            .join(&relative_path_str);
 
         Self::from_pathbuf(pathbuf, username)
     }

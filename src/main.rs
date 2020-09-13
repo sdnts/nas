@@ -44,10 +44,9 @@ async fn main() -> Result<()> {
             .wrap(middleware::NormalizePath::default())
             .wrap(IdentityService::new(
                 CookieIdentityPolicy::new(&CONFIG.cookie_secret.as_bytes())
-                    .domain(&CONFIG.hostname)
                     .name("nas_session")
                     .path("/")
-                    .secure(true),
+                    .secure(false),
             ))
             .service(
                 web::scope("/auth")
