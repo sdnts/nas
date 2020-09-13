@@ -43,9 +43,9 @@ async fn main() -> Result<()> {
             .route("/auth", web::get().to(auth::get))
             .route("/auth", web::post().to(auth::post))
             .route("/fs/{path:.*}", web::get().to(fs::get))
-            .route("/fs/{path}", web::post().to(fs::post))
-            .route("/fs/{path}", web::put().to(fs::put))
-            .route("/fs/{path}", web::delete().to(fs::delete))
+            .route("/fs/{path:.*}", web::post().to(fs::post))
+            .route("/fs/{path:.*}", web::put().to(fs::put))
+            .route("/fs/{path:.*}", web::delete().to(fs::delete))
     })
     .bind("127.0.0.1:8000")?
     .run()

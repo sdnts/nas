@@ -34,6 +34,9 @@ pub enum NASError {
     #[error("Unable to calculate breadcrumbs for {pathbuf:?}")]
     BreadcrumbError { pathbuf: PathBuf },
 
+    #[error("Unable to create file / directory at path{pathbuf:?}")]
+    PathCreateError { pathbuf: PathBuf },
+
     #[error("Encountered an anyhow error")]
     AnyhowError,
 }

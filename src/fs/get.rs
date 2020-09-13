@@ -14,7 +14,7 @@ pub async fn get(
 ) -> Result<impl Responder, NASError> {
     let templates = &app_state.templates;
 
-    // The NormalizePath middleware will add a trailing slash at the end of the path, so w must remove it
+    // The NormalizePath middleware will add a trailing slash at the end of the path, so we must remove it
     let path = strip_trailing_char(path.clone());
     let nas_file = NASFile::from_relative_path_str(&path)?;
 
