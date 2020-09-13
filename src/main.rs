@@ -4,15 +4,13 @@ use actix_web::{middleware, web, App, HttpServer, Result};
 use lazy_static::lazy_static;
 
 mod app_state;
-mod auth;
 mod config;
 mod db;
 mod error;
 mod file;
-mod fs;
 mod hbs_helpers;
+mod routes;
 mod schema;
-mod stream;
 mod templates;
 mod utils;
 
@@ -47,20 +45,21 @@ async fn main() -> Result<()> {
                     .path("/")
                     .secure(false),
             ))
+            .route("/", web::get().to(routes::index::get))
             .service(
                 web::scope("/auth")
-                    .route("/", web::get().to(auth::get))
-                    .route("/", web::post().to(auth::post))
-                    .route("/", web::delete().to(auth::delete)),
+                    .route("/", web::get().to(routes::auth::get))
+                    .route("/", web::post().to(routes::auth::post))
+                    .route("/", web::delete().to(routes::auth::delete)),
             )
             .service(
                 web::scope("/fs")
-                    .route("/{path:.*}", web::get().to(fs::get))
-                    .route("/{path:.*}", web::post().to(fs::post))
-                    .route("/{path:.*}", web::put().to(fs::put))
-                    .route("/{path:.*}", web::delete().to(fs::delete)),
+                    .route("/{path:.*}", web::get().to(routes::fs::get))
+                    .route("/{path:.*}", web::post().to(routes::fs::post))
+                    .route("/{path:.*}", web::put().to(routes::fs::put))
+                    .route("/{path:.*}", web::delete().to(routes::fs::delete)),
             )
-            .service(web::scope("/stream").route("/{path:.*}", web::get().to(stream::get)))
+            .service(web::scope("/stream").route("/{path:.*}", web::get().to(routes::stream::get)))
             .service(Files::new("/public", "./public").show_files_listing())
     })
     .bind("127.0.0.1:8000")?
