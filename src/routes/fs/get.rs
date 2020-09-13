@@ -83,8 +83,9 @@ pub async fn get(
                     } else {
                         let mut b_iter = breadcrumbs.iter();
                         b_iter.next(); // Remove first segment, since it will always be `/`
+                        let len = b_iter.len();
                         b_iter
-                            .take(breadcrumbs.len() - 1)
+                            .take(len - 1)
                             .map(|b| b.to_string())
                             .collect::<Vec<String>>()
                     }
