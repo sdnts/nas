@@ -37,8 +37,8 @@ pub enum NASError {
     #[error("Cannot convert {osstring:?} to valid str")]
     OsStrConversionError { osstring: OsString },
 
-    #[error("The path {pathbuf:?} does not exist")]
-    NonExistentPath { pathbuf: PathBuf },
+    #[error("The path {path:?} does not exist")]
+    NonExistentPath { path: String },
 
     #[error("Failed to render {template:?} template")]
     TemplateRenderError { template: &'static str },

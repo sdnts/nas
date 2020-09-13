@@ -27,14 +27,16 @@ impl NASFile {
             return Err(NASError::PathAccessDenied { pathbuf });
         }
 
-        if !pathbuf.exists() {
-            return Err(NASError::NonExistentPath { pathbuf });
-        }
-
         let absolute_path_str = pathbuf.to_str().ok_or(NASError::InvalidPathBuf {
             pathbuf: pathbuf.to_owned(),
         })?;
         let absolute_path_str = absolute_path_str.to_string();
+
+        if !pathbuf.exists() {
+            return Err(NASError::NonExistentPath {
+                path: absolute_path_str,
+            });
+        }
 
         let relative_path_str =
             absolute_path_str
