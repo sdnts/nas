@@ -43,6 +43,9 @@ pub enum NASError {
     #[error("Unable to rename file / directory at path {pathbuf:?}")]
     PathRenameError { pathbuf: PathBuf },
 
+    #[error("Unable to delete file / directory at path {pathbuf:?}")]
+    PathDeleteError { pathbuf: PathBuf },
+
     #[error("Encountered an anyhow error")]
     AnyhowError,
 }
