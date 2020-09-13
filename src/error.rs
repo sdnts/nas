@@ -4,6 +4,24 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum NASError {
+    #[error("Unable to initialize NAS DB")]
+    DBInitializationError,
+
+    #[error("Unable to initialize NAS AppState")]
+    AppStateInitializationError,
+
+    #[error("Invalid credentials for {username:?}")]
+    UserValidationError { username: String },
+
+    #[error("Unable to read User from DB")]
+    UserReadError,
+
+    #[error("Unable to create Session in DB")]
+    SessionCreateError,
+
+    #[error("Unable to read Session from DB")]
+    SessionReadError,
+
     #[error("The PathBuf {pathbuf:?} is invalid")]
     InvalidPathBuf { pathbuf: PathBuf },
 
@@ -57,7 +75,3 @@ impl From<anyhow::Error> for NASError {
 }
 
 impl actix_web::error::ResponseError for NASError {}
-
-pub enum AuthError {}
-
-pub enum StreamError {}

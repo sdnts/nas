@@ -1,7 +1,7 @@
-use anyhow::*;
 use serde::{Deserialize, Serialize};
 
 use crate::db::NASDB;
+use crate::error::NASError;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct User {
@@ -11,26 +11,30 @@ pub struct User {
 }
 
 impl User {
-    pub fn login(username: &str, password_hash: &str) -> Result<User> {
+    pub fn login(username: &str, password_hash: &str) -> Result<User, NASError> {
         let db = NASDB::new()?;
         let db = db.connection();
 
-        let mut db_query = db.prepare(
-            "SELECT id, username, password_hash FROM Users
+        let mut db_query = db
+            .prepare(
+                "SELECT id, username, password_hash FROM Users
                 WHERE username = ?1 AND password_hash = ?2",
-        )?;
-        let mut users = db_query.query_map(&[username, password_hash], |row| {
-            Ok(User {
-                id: row.get(0)?,
-                username: row.get(1)?,
-                password_hash: row.get(2)?,
+            )
+            .map_err(|_| NASError::UserReadError)?;
+        let mut users = db_query
+            .query_map(&[username, password_hash], |row| {
+                Ok(User {
+                    id: row.get(0)?,
+                    username: row.get(1)?,
+                    password_hash: row.get(2)?,
+                })
             })
-        })?;
+            .map_err(|_| NASError::UserReadError)?;
 
-        let user = users
-            .next()
-            .ok_or(anyhow!("[schema::User::login] Invalid credentials"))?;
-        let user = user?;
+        let user = users.next().ok_or(NASError::UserValidationError {
+            username: username.to_string(),
+        })?;
+        let user = user.map_err(|_| NASError::UserReadError)?;
 
         Ok(user)
     }
@@ -43,7 +47,7 @@ pub struct Session {
 }
 
 impl Session {
-    pub fn create(id: &str, value: &str) -> Result<Session> {
+    pub fn create(id: &str, value: &str) -> Result<Session, NASError> {
         let db = NASDB::new()?;
         let db = db.connection();
 
@@ -52,9 +56,7 @@ impl Session {
                 "INSERT INTO Sessions (id,value)
                 VALUES (?1,?2)",
             )
-            .with_context(|| {
-                anyhow!("[schema::Session::create] Failure during DB query preparation")
-            })?;
+            .map_err(|_| NASError::SessionCreateError)?;
 
         let mut sessions = db_query
             .query_map(&[id, value], |row| {
@@ -63,21 +65,15 @@ impl Session {
                     value: value.to_string(),
                 })
             })
-            .with_context(|| {
-                anyhow!("[schema::Session::create] Failure during DB Query execution")
-            })?;
+            .map_err(|_| NASError::SessionCreateError)?;
 
-        let session = sessions.next().ok_or(anyhow!(
-            "[schema::Session::create] Failure during session creation"
-        ))?;
-        let session = session.with_context(|| {
-            anyhow!("[schema::Session::create] Failure during session creation")
-        })?;
+        let session = sessions.next().ok_or(NASError::SessionCreateError)?;
+        let session = session.map_err(|_| NASError::SessionCreateError)?;
 
         Ok(session)
     }
 
-    pub fn find_by_value(value: &str) -> Result<Session> {
+    pub fn find_by_value(value: &str) -> Result<Session, NASError> {
         let db = NASDB::new()?;
         let db = db.connection();
 
@@ -86,9 +82,7 @@ impl Session {
                 "SELECT id, value FROM Sessions
                 WHERE value = ?1",
             )
-            .with_context(|| {
-                anyhow!("[schema::Session::find_by_value Failure during DB query preparation")
-            })?;
+            .map_err(|_| NASError::SessionReadError)?;
 
         let mut sessions = db_query
             .query_map(&[value], |row| {
@@ -97,15 +91,10 @@ impl Session {
                     value: row.get(1)?,
                 })
             })
-            .with_context(|| {
-                anyhow!("[schema::Session::find_by_value] Failure during DB query execution")
-            })?;
+            .map_err(|_| NASError::SessionReadError)?;
 
-        let session = sessions.next().ok_or(anyhow!(
-            "[schema::Session::find_by_value] Unable to find session"
-        ))?;
-        let session = session
-            .with_context(|| anyhow!("[schema::Session::find_by_value] Unable to find session"))?;
+        let session = sessions.next().ok_or(NASError::SessionReadError)?;
+        let session = session.map_err(|_| NASError::SessionReadError)?;
 
         Ok(session)
     }
