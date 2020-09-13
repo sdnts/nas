@@ -10,6 +10,13 @@ pub struct BadRequestPageParams {
 }
 
 #[derive(Serialize)]
+pub struct UnauthorizedPageParams {
+    pub title: String,
+    pub hostname: String,
+    pub username: String,
+}
+
+#[derive(Serialize)]
 pub struct AuthPageParams {
     pub title: String,
     pub hostname: String,
