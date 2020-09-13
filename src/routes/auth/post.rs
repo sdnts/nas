@@ -7,6 +7,7 @@ use crate::app_state::AppState;
 use crate::error::NASError;
 use crate::schema::User;
 use crate::templates::AuthPageParams;
+use crate::CONFIG;
 
 #[derive(Debug, Deserialize)]
 pub struct FormParams {
@@ -37,6 +38,7 @@ pub async fn post(
             .render(
                 "auth",
                 &AuthPageParams {
+                    theme: CONFIG.theme.clone(),
                     message: Some("Logged in, redirecting...".to_string()),
                     logged_in: true,
                     redirect_url: params.redirect_url.to_owned(),
@@ -52,6 +54,7 @@ pub async fn post(
             .render(
                 "auth",
                 &AuthPageParams {
+                    theme: CONFIG.theme.clone(),
                     message: Some("Invalid credentials".to_string()),
                     logged_in: false,
                     redirect_url: None,

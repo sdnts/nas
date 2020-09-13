@@ -1,10 +1,10 @@
 use serde::Serialize;
 
-#[derive(Debug, Serialize)]
+#[allow(dead_code)]
+#[derive(Clone, Debug, Serialize)]
 pub enum NASTheme {
     Light,
     Dark,
-    Auto,
 }
 
 #[derive(Debug, Serialize)]

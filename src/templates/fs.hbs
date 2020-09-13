@@ -6,14 +6,20 @@
   <title>NAS</title>
 
   <link rel="icon" href="/public/icons/nas.svg">
+  {{#if (eq theme "DARK")}}
+  <link rel="stylesheet" href="/public/styles/dark.css" />
+  {{/if}}
+  {{#if (eq theme "Light")}}
+  <link rel="stylesheet" href="/public/styles/light.css" />
+  {{/if}}
   <link rel="stylesheet" href="/public/styles/common.css" />
   <link rel="stylesheet" href="/public/styles/icons.css" />
-  <link rel="stylesheet" href="/public/styles/dark.css" />
   <link rel="stylesheet" href="/public/styles/fs.css" />
   <link rel="stylesheet" href="/public/styles/tooltip.css" />
 </head>
 
 <body>
+  {{theme}}
   <header>
     <span id="title">/fs</span>
     <span id="user">{{ username }}</span>

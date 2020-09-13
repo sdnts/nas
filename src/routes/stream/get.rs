@@ -9,6 +9,7 @@ use crate::error::NASError;
 use crate::file::{NASFile, NASFileCategory};
 use crate::templates::AuthPageParams;
 use crate::utils::strip_trailing_char;
+use crate::CONFIG;
 
 pub async fn get(
     identity: Identity,
@@ -26,6 +27,7 @@ pub async fn get(
                     .render(
                         "auth",
                         &AuthPageParams {
+                            theme: CONFIG.theme.clone(),
                             logged_in: false,
                             message: Some("Protected resource, please log in".to_string()),
                             redirect_url: None,

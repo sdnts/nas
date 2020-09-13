@@ -8,6 +8,7 @@ use crate::error::NASError;
 use crate::file::{NASFile, NASFileCategory};
 use crate::templates::{AuthPageParams, BadRequestPageParams, FSPageParams, StreamPageParams};
 use crate::utils::strip_trailing_char;
+use crate::CONFIG;
 
 pub async fn get(
     identity: Identity,
@@ -26,6 +27,7 @@ pub async fn get(
                     .render(
                         "auth",
                         &AuthPageParams {
+                            theme: CONFIG.theme.clone(),
                             message: None,
                             logged_in: false,
                             redirect_url: Some(format!("/fs/{}", path.clone())),
@@ -93,6 +95,7 @@ pub async fn get(
                     .render(
                         "fs",
                         &FSPageParams {
+                            theme: CONFIG.theme.clone(),
                             username,
                             breadcrumbs,
                             parent_href,
@@ -105,6 +108,7 @@ pub async fn get(
                 .render(
                     "stream",
                     &StreamPageParams {
+                        theme: CONFIG.theme.clone(),
                         src: format!("/stream/{}", path),
                         file_name: nas_file.name.to_string(),
                     },
@@ -114,6 +118,7 @@ pub async fn get(
                 .render(
                     "400",
                     &BadRequestPageParams {
+                        theme: CONFIG.theme.clone(),
                         title: "/fs".to_string(),
                         username,
                     },
