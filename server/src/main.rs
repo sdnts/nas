@@ -28,7 +28,11 @@ async fn main() -> Result<()> {
     let app_state = web::Data::new(app_state);
 
     HttpServer::new(move || {
+        // Set payload size limit to 100GB
+        let payload_config = web::PayloadConfig::default().limit(100 * 1000000000);
+
         App::new()
+            .app_data(payload_config)
             .app_data(app_state.clone())
             .wrap(middleware::NormalizePath::default())
             .wrap(IdentityService::new(
