@@ -51,7 +51,7 @@ impl NASDB {
                     "INSERT INTO Users (username, password_hash)
                     VALUES (
                         \"root\", 
-                        \"62B11ABEFC9C6070DF5DFCD59A8A72EF067660957CBA0D0508E9BF38B6F3A627D28208682D6B0A9C809C48047512FE9D2E3751C43093300D5FE4E846494A54BC\"
+                        \"62b11abefc9c6070df5dfcd59a8a72ef067660957cba0d0508e9bf38b6f3a627d28208682d6b0a9c809c48047512fe9d2e3751c43093300d5fe4e846494a54bc\"
                     )",
                     NO_PARAMS,
                 )

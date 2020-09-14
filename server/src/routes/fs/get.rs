@@ -78,9 +78,7 @@ pub async fn get(
                     })?;
 
                 let parent_href = {
-                    if breadcrumbs.is_empty() {
-                        vec![]
-                    } else {
+                    if breadcrumbs.len() > 1 {
                         let mut b_iter = breadcrumbs.iter();
                         b_iter.next(); // Remove first segment, since it will always be `/`
                         let len = b_iter.len();
@@ -88,6 +86,9 @@ pub async fn get(
                             .take(len - 1)
                             .map(|b| b.to_string())
                             .collect::<Vec<String>>()
+                    } else {
+                        // If there aren't at least 2 breadcrumbs, the parent will be this user's root path
+                        vec![]
                     }
                 };
                 let parent_href = parent_href.join("/");
