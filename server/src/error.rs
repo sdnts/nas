@@ -17,7 +17,7 @@ pub enum NASError {
     UserReadError,
 
     #[error("Unable to resolve FS Root for user {username:?} from {fs_root:?}")]
-    FSRootResolutionError { fs_root: PathBuf, username: String },
+    FSRootResolutionError { fs_root: String, username: String },
 
     #[error("The PathBuf {pathbuf:?} is invalid")]
     InvalidPathBuf { pathbuf: PathBuf },
@@ -49,8 +49,8 @@ pub enum NASError {
     #[error("Unable to calculate breadcrumbs for {pathbuf:?}")]
     BreadcrumbError { pathbuf: PathBuf },
 
-    #[error("Unable to create file / directory at path {pathbuf:?}")]
-    PathCreateError { pathbuf: PathBuf },
+    #[error("Unable to create file / directory at path {path:?}")]
+    PathCreateError { path: String },
 
     #[error("Unable to create file / directory at path {pathbuf:?} because a file already exists at this path")]
     PathExistsError { pathbuf: PathBuf },

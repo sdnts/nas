@@ -17,7 +17,7 @@ pub struct NASFile {
 
 impl NASFile {
     pub fn from_pathbuf(pathbuf: PathBuf, username: &str) -> Result<Self, NASError> {
-        let user_fs_root = Self::user_fs_root(username);
+        let user_fs_root = Self::user_fs_root(username)?;
 
         if !pathbuf.starts_with(&user_fs_root) {
             return Err(NASError::PathAccessDenied { pathbuf });
@@ -62,7 +62,7 @@ impl NASFile {
     }
 
     pub fn from_relative_path_str(path: &str, username: &str) -> Result<Self, NASError> {
-        let user_fs_root = Self::user_fs_root(username);
+        let user_fs_root = Self::user_fs_root(username)?;
         let relative_path_str = path.to_string();
 
         let pathbuf = user_fs_root.join(&relative_path_str);
@@ -146,7 +146,7 @@ impl NASFile {
     }
 
     pub fn relative_to_absolute_str(path: &str, username: &str) -> Result<String, NASError> {
-        let user_fs_root = Self::user_fs_root(&username);
+        let user_fs_root = Self::user_fs_root(&username)?;
         let pathbuf = user_fs_root.join(path);
         let path_str = pathbuf.to_str().ok_or(NASError::InvalidPathBuf {
             pathbuf: pathbuf.to_owned(),
@@ -155,8 +155,17 @@ impl NASFile {
         Ok(path_str.to_string())
     }
 
-    pub fn user_fs_root(username: &str) -> PathBuf {
-        Path::new(&crate::CONFIG.fs_root).join(username)
+    pub fn user_fs_root(username: &str) -> Result<PathBuf, NASError> {
+        let pathbuf = Path::new(&crate::CONFIG.fs_root).join(username);
+
+        if !pathbuf.exists() {
+            Err(NASError::FSRootResolutionError {
+                fs_root: crate::CONFIG.fs_root.to_string(),
+                username: username.to_string(),
+            })
+        } else {
+            Ok(pathbuf)
+        }
     }
 }
 
