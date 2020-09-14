@@ -16,6 +16,8 @@ hex = "0.4.2"
 lazy_static = "1.4.0"
 libsqlite3-sys = "0.20.0"
 rusqlite = { version = "0.24.0", features = ["bundled"] }
-serde = "1.0.115"
+serde = "1.0.116"
 sha2 = "0.9.1"
 thiserror = "1.0.20"
+
+streamgen = { path = "../streamgen" }

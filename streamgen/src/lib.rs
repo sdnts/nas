@@ -1,5 +1,5 @@
 use std::fs;
-use std::path::PathBuf;
+use std::path::Path;
 use std::process::Command;
 use std::process::Stdio;
 
@@ -7,20 +7,19 @@ mod error;
 
 use error::StreamgenError;
 
-fn main() -> Result<(), StreamgenError> {
-    let fs_root = "/home/ozark/nas_root/root";
-    let relative_path_str = "Movies/Big Buck Bunny/original.avi";
-
-    let pathbuf = PathBuf::new().join(fs_root).join(relative_path_str);
-    let pathbuf = pathbuf
+pub fn generate_stream_segments_for_path(
+    path: &Path,
+    fs_root: &Path,
+) -> Result<(), StreamgenError> {
+    let pathbuf = path
         .canonicalize()
         .map_err(|_| StreamgenError::PathCanonicalizeError {
-            path: pathbuf.to_owned(),
+            path: path.to_owned(),
         })?;
 
     if !pathbuf.exists() {
         return Err(StreamgenError::NonExistentPath {
-            path: relative_path_str.to_string(),
+            path: path.to_owned(),
         });
     }
 
@@ -44,26 +43,26 @@ fn main() -> Result<(), StreamgenError> {
     let parent_dir = pathbuf
         .parent()
         .ok_or(StreamgenError::ParentDirResolutionError {
-            path: relative_path_str.to_string(),
+            path: path.to_owned(),
         })?;
     let parent_dir_str = parent_dir
         .to_str()
         .ok_or(StreamgenError::ParentDirResolutionError {
-            path: relative_path_str.to_string(),
+            path: path.to_owned(),
         })?;
 
     let relative_parent_dir = parent_dir.strip_prefix(fs_root).map_err(|_| {
         StreamgenError::RelativeParentDirResolutionError {
-            fs_root: fs_root.to_string(),
-            path: parent_dir_str.to_string(),
+            fs_root: fs_root.to_owned(),
+            path: parent_dir.to_owned(),
         }
     })?;
     let relative_parent_dir_str =
         relative_parent_dir
             .to_str()
             .ok_or(StreamgenError::RelativeParentDirResolutionError {
-                fs_root: fs_root.to_string(),
-                path: parent_dir_str.to_string(),
+                fs_root: fs_root.to_owned(),
+                path: parent_dir.to_owned(),
             })?;
 
     let segment_path = parent_dir.join("segments");
