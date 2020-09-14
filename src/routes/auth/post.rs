@@ -4,8 +4,8 @@ use serde::Deserialize;
 use sha2::{Digest, Sha512};
 
 use crate::app_state::AppState;
+use crate::db::User;
 use crate::error::NASError;
-use crate::schema::User;
 use crate::templates::AuthPageParams;
 use crate::CONFIG;
 

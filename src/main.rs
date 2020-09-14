@@ -10,7 +10,6 @@ mod error;
 mod file;
 mod hbs_helpers;
 mod routes;
-mod schema;
 mod templates;
 mod utils;
 
