@@ -7,15 +7,13 @@ pub enum StreamgenError {
     PathCanonicalizeError { path: PathBuf },
 
     #[error("The path does not exist: {path:?}")]
-    NonExistentPath { path: String },
+    NonExistentPath { path: PathBuf },
 
     #[error("Unable to resolve parent directory for path {path:?}")]
-    ParentDirResolutionError { path: String },
+    ParentDirResolutionError { path: PathBuf },
 
-    #[error(
-        "Unable to resolve relative parent directory for path {path:?} relative to {fs_root:?}"
-    )]
-    RelativeParentDirResolutionError { path: String, fs_root: String },
+    #[error("Unable to resolve relative parent directory for path {path:?}")]
+    RelativeParentDirResolutionError { path: PathBuf, fs_root: PathBuf },
 
     #[error("The provided path cannot be resolved as a file: {pathbuf:?}")]
     FileResolutionError { pathbuf: PathBuf },

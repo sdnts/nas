@@ -17,13 +17,9 @@ pub struct NASFile {
 
 impl NASFile {
     pub fn from_pathbuf(pathbuf: PathBuf, username: &str) -> Result<Self, NASError> {
-        let fs_root = Path::new(&crate::CONFIG.fs_root).join(username);
-        let fs_root_str = fs_root.to_str().ok_or(NASError::FSRootResolutionError {
-            fs_root: pathbuf.to_owned(),
-            username: username.to_string(),
-        })?;
+        let user_fs_root = Self::user_fs_root(username);
 
-        if !pathbuf.starts_with(&fs_root_str) {
+        if !pathbuf.starts_with(&user_fs_root) {
             return Err(NASError::PathAccessDenied { pathbuf });
         }
 
@@ -38,9 +34,13 @@ impl NASFile {
             });
         }
 
+        // let pathbuf = Path::new(&crate::CONFIG.fs_root).join(username);
+        let user_fs_root_str = user_fs_root.to_str().ok_or(NASError::InvalidPathBuf {
+            pathbuf: pathbuf.to_owned(),
+        })?;
         let relative_path_str =
             absolute_path_str
-                .strip_prefix(fs_root_str)
+                .strip_prefix(user_fs_root_str)
                 .ok_or(NASError::PathAccessDenied {
                     pathbuf: pathbuf.to_owned(),
                 })?;
@@ -62,10 +62,10 @@ impl NASFile {
     }
 
     pub fn from_relative_path_str(path: &str, username: &str) -> Result<Self, NASError> {
+        let user_fs_root = Self::user_fs_root(username);
         let relative_path_str = path.to_string();
-        let pathbuf = Path::new(&crate::CONFIG.fs_root)
-            .join(username)
-            .join(&relative_path_str);
+
+        let pathbuf = user_fs_root.join(&relative_path_str);
 
         Self::from_pathbuf(pathbuf, username)
     }
@@ -145,13 +145,18 @@ impl NASFile {
         Ok(size)
     }
 
-    pub fn relative_to_absolute_str(path: &str) -> Result<String, NASError> {
-        let pathbuf = Path::new(&crate::CONFIG.fs_root).join(path);
+    pub fn relative_to_absolute_str(path: &str, username: &str) -> Result<String, NASError> {
+        let user_fs_root = Self::user_fs_root(&username);
+        let pathbuf = user_fs_root.join(path);
         let path_str = pathbuf.to_str().ok_or(NASError::InvalidPathBuf {
             pathbuf: pathbuf.to_owned(),
         })?;
 
         Ok(path_str.to_string())
+    }
+
+    pub fn user_fs_root(username: &str) -> PathBuf {
+        Path::new(&crate::CONFIG.fs_root).join(username)
     }
 }
 
