@@ -13,3 +13,13 @@ pub struct NASConfig {
     pub cookie_secret: String,
     pub theme: NASTheme,
 }
+
+impl Default for NASConfig {
+    fn default() -> Self {
+        Self {
+            fs_root: "/home/ozark/nas_root".to_string(),
+            cookie_secret: "012345678901234567890123456789012".to_string(),
+            theme: NASTheme::Dark,
+        }
+    }
+}

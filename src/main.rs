@@ -17,13 +17,7 @@ use app_state::AppState;
 use error::NASError;
 
 lazy_static! {
-    // Unwrap all failables, because we want the panics
-
-    static ref CONFIG: config::NASConfig = config::NASConfig {
-        fs_root: "/home/ozark/nas_root".to_string(),
-        cookie_secret: "012345678901234567890123456789012".to_string(),
-        theme: config::NASTheme::Dark
-    };
+    static ref CONFIG: config::NASConfig = Default::default();
 }
 
 #[actix_rt::main]
