@@ -19,7 +19,6 @@
 </head>
 
 <body>
-  {{theme}}
   <header>
     <span id="title">/fs</span>
     <span id="user">{{ username }}</span>
@@ -61,7 +60,7 @@
         <li class="file-list__item" title="Parent">
           <div class="file-list__item__marker"></div>
           <div class="icon file-list__item__icon" data-icon="none"></div>
-          <a class="file-list__item__name" href="/fs/{{parent_href}}">..</a>
+          <a class="file-list__item__name" href="{{parent_href}}">..</a>
         </li>
 
         {{#each files as |file|}}

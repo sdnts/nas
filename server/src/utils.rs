@@ -1,4 +1,4 @@
-pub fn strip_trailing_char(string: String) -> String {
+pub fn strip_trailing_char(string: &str) -> String {
     let mut s = string.chars().rev();
 
     if let Some(_) = s.next() {

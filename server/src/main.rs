@@ -14,15 +14,15 @@ mod templates;
 mod utils;
 
 use app_state::AppState;
-use error::NASError;
+use config::NASConfig;
 
 lazy_static! {
-    static ref CONFIG: config::NASConfig = Default::default();
+    static ref CONFIG: NASConfig = Default::default();
 }
 
 #[actix_rt::main]
 async fn main() -> Result<()> {
-    db::NASDB::init().map_err(|_| NASError::DBInitializationError)?;
+    NASConfig::init()?;
 
     let app_state = AppState::new()?;
     let app_state = web::Data::new(app_state);

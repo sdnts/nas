@@ -1,11 +1,12 @@
 use actix_identity::Identity;
 use actix_web::{http, web, HttpResponse, Responder, Result};
+use std::convert::TryFrom;
 use std::fs;
 use std::path::PathBuf;
 
 use crate::app_state::AppState;
 use crate::error::NASError;
-use crate::file::{NASFile, NASFileCategory};
+use crate::file::{AbsolutePath, Breadcrumbs, NASFile, NASFileCategory, RelativePath};
 use crate::templates::{AuthPageParams, BadRequestPageParams, FSPageParams, StreamPageParams};
 use crate::utils::strip_trailing_char;
 use crate::CONFIG;
@@ -40,58 +41,47 @@ pub async fn get(
     let username = identity.unwrap();
 
     // The NormalizePath middleware will add a trailing slash at the end of the path, so we must remove it
-    let path = strip_trailing_char(path.clone());
-    let nas_file = NASFile::from_relative_path_str(&path, &username)?;
+    let relative_path_str = strip_trailing_char(&path);
+    let relative_path = RelativePath::new(&relative_path_str, &username);
+    let absolute_path = AbsolutePath::try_from(&relative_path)?;
 
     let response_body = {
-        match nas_file.category {
+        match &absolute_path.category()? {
             NASFileCategory::Directory => {
                 // For directories, render the file list page
-                let contents = fs::read_dir(&nas_file).map_err(|_| NASError::PathReadError {
-                    path: nas_file.absolute_path_str.to_string(),
+                let breadcrumbs = Breadcrumbs::from(&relative_path);
+
+                let pathbuf: PathBuf = absolute_path.into();
+
+                let parent_pathbuf: PathBuf = pathbuf
+                    .parent()
+                    .ok_or(NASError::ParentPathResolutionError {
+                        pathbuf: pathbuf.to_owned(),
+                    })?
+                    .into();
+                let parent_href = format!("/fs/{}", parent_pathbuf.display());
+
+                let contents = fs::read_dir(&pathbuf).map_err(|_| NASError::PathReadError {
+                    pathbuf: pathbuf.to_owned(),
                 })?;
                 let mut files = contents
-                    .map(|f| -> Result<NASFile> {
-                        let file = f?;
-                        let file = NASFile::from_pathbuf(file.path(), &username)?;
-                        Ok(file)
+                    .map(|f| -> Result<String, NASError> {
+                        let file = f?.path();
+                        let file = AbsolutePath::try_from(file)?;
+                        let file_name = file.name()?;
+                        let file_name =
+                            file_name.to_str().ok_or(NASError::OsStrConversionError {
+                                osstring: file_name.to_owned(),
+                            })?;
+
+                        // Must conver tOsString to String (potentially losing data) to be able top display in a browser
+                        Ok(file_name.to_string())
                     })
-                    .collect::<Result<Vec<NASFile>>>()
+                    .collect::<Result<Vec<String>, NASError>>()
                     .map_err(|_| NASError::PathReadError {
-                        path: nas_file.relative_path_str.to_string(),
+                        pathbuf: pathbuf.to_owned(),
                     })?;
                 files.sort();
-
-                let breadcrumbs: PathBuf = PathBuf::new().join(&nas_file.relative_path_str);
-                let breadcrumbs = breadcrumbs
-                    .iter()
-                    .map(|component| -> Result<_> {
-                        let component =
-                            component.to_str().ok_or(NASError::OsStrConversionError {
-                                osstring: component.to_os_string(),
-                            })?;
-                        Ok(component.to_string())
-                    })
-                    .collect::<Result<Vec<String>>>()
-                    .map_err(|_| NASError::BreadcrumbError {
-                        pathbuf: nas_file.into(),
-                    })?;
-
-                let parent_href = {
-                    if breadcrumbs.len() > 1 {
-                        let mut b_iter = breadcrumbs.iter();
-                        b_iter.next(); // Remove first segment, since it will always be `/`
-                        let len = b_iter.len();
-                        b_iter
-                            .take(len - 1)
-                            .map(|b| b.to_string())
-                            .collect::<Vec<String>>()
-                    } else {
-                        // If there aren't at least 2 breadcrumbs, the parent will be this user's root path
-                        vec![]
-                    }
-                };
-                let parent_href = parent_href.join("/");
 
                 templates
                     .render(
@@ -106,16 +96,22 @@ pub async fn get(
                     )
                     .map_err(|_| NASError::TemplateRenderError { template: "fs" })?
             }
-            NASFileCategory::StreamPlaylist => templates
-                .render(
-                    "stream",
-                    &StreamPageParams {
-                        theme: CONFIG.theme.clone(),
-                        src: format!("/stream/{}", path),
-                        file_name: nas_file.name.to_string(),
-                    },
-                )
-                .map_err(|_| NASError::TemplateRenderError { template: "stream" })?,
+            NASFileCategory::StreamPlaylist => {
+                let filename = absolute_path.name()?;
+                let filename = filename
+                    .to_str()
+                    .ok_or(NASError::TemplateRenderError { template: "stream" })?;
+                templates
+                    .render(
+                        "stream",
+                        &StreamPageParams {
+                            theme: CONFIG.theme.clone(),
+                            src: format!("/stream/{}", path),
+                            filename: filename.to_string(),
+                        },
+                    )
+                    .map_err(|_| NASError::TemplateRenderError { template: "stream" })?
+            }
             _ => templates
                 .render(
                     "400",

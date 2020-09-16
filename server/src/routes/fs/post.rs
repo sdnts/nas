@@ -1,5 +1,6 @@
 use actix_identity::Identity;
 use actix_web::{http, web, HttpResponse, Responder, Result};
+use std::convert::TryFrom;
 use std::fs;
 use std::io;
 use std::path::PathBuf;
@@ -7,7 +8,7 @@ use std::thread;
 
 use crate::app_state::AppState;
 use crate::error::NASError;
-use crate::file::{NASFile, NASFileCategory};
+use crate::file::{AbsolutePath, NASFile, NASFileCategory, RelativePath};
 use crate::templates::AuthPageParams;
 use crate::utils::strip_trailing_char;
 use crate::CONFIG;
@@ -42,36 +43,38 @@ pub async fn post(
     let username = identity.unwrap();
 
     // The NormalizePath middleware will add a trailing slash at the end of the path, so we must remove it
-    let relative_path_str = strip_trailing_char(path.clone());
-    let path = NASFile::relative_to_absolute_str(&relative_path_str, &username)?;
-    let path = PathBuf::new().join(&path);
-    let user_fs_root = NASFile::user_fs_root(&username)?;
+    let relative_path_str = strip_trailing_char(&path);
+    let relative_path = RelativePath::new(&relative_path_str, &username);
+    let absolute_path = AbsolutePath::try_from(&relative_path)?;
+
+    let category = absolute_path.category()?;
+    let pathbuf: PathBuf = absolute_path.into();
 
     if body.is_empty() {
         // Create Dir at path
-        fs::create_dir_all(path).map_err(|_| NASError::PathCreateError {
-            path: relative_path_str,
-        })?;
+        fs::create_dir_all(&pathbuf).map_err(|_| NASError::PathCreateError { pathbuf })?;
     } else {
         // Create file at path
         let mut file = fs::OpenOptions::new()
             .create(true)
             .write(true)
-            .open(&path)
+            .open(&pathbuf)
             .map_err(|_| NASError::PathCreateError {
-                path: relative_path_str.to_owned(),
+                pathbuf: pathbuf.to_owned(),
             })?;
 
         io::copy(&mut &body.to_vec()[..], &mut file).map_err(|_| NASError::PathCreateError {
-            path: relative_path_str.to_owned(),
+            pathbuf: pathbuf.to_owned(),
         })?;
 
         // If this is a video file, start generating stream segments
-        let file = NASFile::from_relative_path_str(&relative_path_str, &username)?;
-        match file.category {
+        match category {
             NASFileCategory::Video => {
                 thread::spawn(move || {
-                    streamgen::generate_stream_segments_for_path(&path, &user_fs_root)
+                    streamgen::generate_stream_segments_for_path(
+                        &pathbuf,
+                        &AbsolutePath::user_fs_root(&username),
+                    )
                 });
             }
             _ => {}

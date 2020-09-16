@@ -1,7 +1,6 @@
 use serde::Serialize;
 
 use crate::config::NASTheme;
-use crate::file::NASFile;
 
 #[derive(Serialize)]
 pub struct BadRequestPageParams {
@@ -24,12 +23,12 @@ pub struct FSPageParams {
     pub username: String,
     pub breadcrumbs: Vec<String>,
     pub parent_href: String,
-    pub files: Vec<NASFile>,
+    pub files: Vec<String>,
 }
 
 #[derive(Serialize)]
 pub struct StreamPageParams {
     pub theme: NASTheme,
     pub src: String,
-    pub file_name: String,
+    pub filename: String,
 }

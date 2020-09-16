@@ -1,11 +1,12 @@
 use actix_identity::Identity;
 use actix_web::{http, web, HttpResponse, Responder, Result};
+use std::convert::TryFrom;
 use std::fs;
 use std::path::PathBuf;
 
 use crate::app_state::AppState;
 use crate::error::NASError;
-use crate::file::NASFile;
+use crate::file::{AbsolutePath, RelativePath};
 use crate::templates::AuthPageParams;
 use crate::utils::strip_trailing_char;
 use crate::CONFIG;
@@ -40,28 +41,28 @@ pub async fn put(
     let username = identity.unwrap();
 
     // The NormalizePath middleware will add a trailing slash at the end of the path, so we must remove it
-    let path = strip_trailing_char(path.clone());
+    let relative_path_str = strip_trailing_char(&path);
+    let relative_path = RelativePath::new(&relative_path_str, &username);
+    let absolute_path = AbsolutePath::try_from(&relative_path)?;
 
-    let nas_file = NASFile::from_relative_path_str(&path, &username)?;
-    let renamed_file = NASFile::from_relative_path_str(&path, &username)?;
-
-    let renamed_pathbuf: PathBuf = renamed_file.into();
-    let renamed_pathbuf = renamed_pathbuf
+    let pathbuf: PathBuf = absolute_path.into();
+    let renamed_pathbuf = pathbuf
         .parent()
-        .ok_or(NASError::InvalidPathBuf {
-            pathbuf: renamed_pathbuf.to_owned(),
+        .ok_or(NASError::NonExistentPath {
+            pathbuf: pathbuf.to_owned(),
         })?
         .join(&name);
 
     if renamed_pathbuf.exists() {
-        // Behaviour differs with platform, so exit early
+        // Rename behaviour differs with platform, so exit early
         Err(NASError::PathExistsError {
             pathbuf: renamed_pathbuf.to_owned(),
         }
         .into())
     } else {
-        fs::rename(&nas_file, &renamed_pathbuf).map_err(|_| NASError::PathRenameError {
-            pathbuf: renamed_pathbuf,
+        fs::rename(&pathbuf, &renamed_pathbuf).map_err(|_| NASError::PathRenameError {
+            from: pathbuf,
+            to: renamed_pathbuf,
         })?;
 
         Ok(HttpResponse::Ok().finish())

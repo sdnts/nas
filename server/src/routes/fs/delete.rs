@@ -1,10 +1,12 @@
 use actix_identity::Identity;
 use actix_web::{http, web, HttpResponse, Responder, Result};
+use std::convert::TryFrom;
 use std::fs;
+use std::path::PathBuf;
 
 use crate::app_state::AppState;
 use crate::error::NASError;
-use crate::file::{NASFile, NASFileCategory};
+use crate::file::{AbsolutePath, NASFile, NASFileCategory, RelativePath};
 use crate::templates::AuthPageParams;
 use crate::utils::strip_trailing_char;
 use crate::CONFIG;
@@ -38,19 +40,18 @@ pub async fn delete(
     let username = identity.unwrap();
 
     // The NormalizePath middleware will add a trailing slash at the end of the path, so we must remove it
-    let path = strip_trailing_char(path.clone());
-    let nas_file = NASFile::from_relative_path_str(&path, &username)?;
+    let relative_path_str = strip_trailing_char(&path);
+    let relative_path = RelativePath::new(&relative_path_str, &username);
+    let absolute_path = AbsolutePath::try_from(&relative_path)?;
 
-    match nas_file.category {
-        NASFileCategory::Directory => {
-            fs::remove_dir_all::<&NASFile>(&nas_file).map_err(|_| NASError::PathDeleteError {
-                pathbuf: nas_file.into(),
-            })?
-        }
+    let category = absolute_path.category()?;
+    let pathbuf: PathBuf = absolute_path.into();
+
+    match category {
+        NASFileCategory::Directory => fs::remove_dir_all(&pathbuf)
+            .map_err(|_| NASError::PathDeleteError { pathbuf: pathbuf })?,
         _ => {
-            fs::remove_file::<&NASFile>(&nas_file).map_err(|_| NASError::PathDeleteError {
-                pathbuf: nas_file.into(),
-            })
+            fs::remove_file(&pathbuf).map_err(|_| NASError::PathDeleteError { pathbuf: pathbuf })
         }?,
     };
 
