@@ -13,7 +13,9 @@ impl AppState {
         let mut handlebars = Handlebars::new();
         handlebars
             .register_templates_directory(".hbs", "src/templates/")
-            .map_err(|_| NASError::AppStateInitializationError)?;
+            .map_err(|e| NASError::AppStateInitializationError {
+                error: e.to_string(),
+            })?;
 
         handlebars.register_helper("lowercase", Box::new(hbs_helpers::lowercase));
         handlebars.register_helper("filesize", Box::new(hbs_helpers::filesize));

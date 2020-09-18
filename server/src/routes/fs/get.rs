@@ -1,5 +1,6 @@
 use actix_identity::Identity;
 use actix_web::{http, web, HttpResponse, Responder, Result};
+use serde_json::{json, Value};
 use std::convert::TryFrom;
 use std::fs;
 use std::path::PathBuf;
@@ -34,7 +35,10 @@ pub async fn get(
                             redirect_url: Some(format!("/fs/{}", path.clone())),
                         },
                     )
-                    .map_err(|_| NASError::TemplateRenderError { template: "auth" })?,
+                    .map_err(|e| NASError::TemplateRenderError {
+                        template: "auth".to_string(),
+                        error: e.to_string(),
+                    })?,
             ));
     }
 
@@ -65,23 +69,47 @@ pub async fn get(
                     pathbuf: pathbuf.to_owned(),
                 })?;
                 let mut files = contents
-                    .map(|f| -> Result<String, NASError> {
-                        let file = f?.path();
+                    .map(|f| -> Result<AbsolutePath, NASError> {
+                        let file = f
+                            .map_err(|e| NASError::IOError {
+                                error: e.to_string(),
+                            })?
+                            .path();
                         let file = AbsolutePath::try_from(file)?;
-                        let file_name = file.name()?;
-                        let file_name =
-                            file_name.to_str().ok_or(NASError::OsStrConversionError {
-                                osstring: file_name.to_owned(),
+                        Ok(file)
+                    })
+                    .collect::<Result<Vec<AbsolutePath>, NASError>>()?;
+                files.sort();
+
+                let files = files
+                    .iter()
+                    .map(|file| -> Result<Value, NASError> {
+                        // Must convert OsString to String (potentially losing data) to be able to display in a browser
+                        let name = file.name()?;
+                        let name = name.to_str().ok_or(NASError::OsStrConversionError {
+                            osstring: name.to_owned(),
+                        })?;
+
+                        let category = file.category()?;
+
+                        // Must convert OsString to String (potentially losing data) to be able to display in a browser
+                        let extension = file.extension()?;
+                        let extension =
+                            extension.to_str().ok_or(NASError::OsStrConversionError {
+                                osstring: extension.to_owned(),
                             })?;
 
-                        // Must conver tOsString to String (potentially losing data) to be able top display in a browser
-                        Ok(file_name.to_string())
+                        let size_bytes = file.size_bytes()?;
+
+                        Ok(json!({
+                                "name": name,
+                                "category": category,
+                                "extension":extension,
+                                "size_bytes": size_bytes,
+                            }
+                        ))
                     })
-                    .collect::<Result<Vec<String>, NASError>>()
-                    .map_err(|_| NASError::PathReadError {
-                        pathbuf: pathbuf.to_owned(),
-                    })?;
-                files.sort();
+                    .collect::<Result<Vec<Value>, NASError>>()?;
 
                 templates
                     .render(
@@ -94,13 +122,16 @@ pub async fn get(
                             files,
                         },
                     )
-                    .map_err(|_| NASError::TemplateRenderError { template: "fs" })?
+                    .map_err(|e| NASError::TemplateRenderError {
+                        template: "fs".to_string(),
+                        error: e.to_string(),
+                    })?
             }
             NASFileCategory::StreamPlaylist => {
                 let filename = absolute_path.name()?;
-                let filename = filename
-                    .to_str()
-                    .ok_or(NASError::TemplateRenderError { template: "stream" })?;
+                let filename = filename.to_str().ok_or(NASError::OsStrConversionError {
+                    osstring: filename.to_owned(),
+                })?;
                 templates
                     .render(
                         "stream",
@@ -110,7 +141,10 @@ pub async fn get(
                             filename: filename.to_string(),
                         },
                     )
-                    .map_err(|_| NASError::TemplateRenderError { template: "stream" })?
+                    .map_err(|e| NASError::TemplateRenderError {
+                        template: "stream".to_string(),
+                        error: e.to_string(),
+                    })?
             }
             _ => templates
                 .render(
@@ -121,7 +155,10 @@ pub async fn get(
                         username,
                     },
                 )
-                .map_err(|_| NASError::TemplateRenderError { template: "400" })?,
+                .map_err(|e| NASError::TemplateRenderError {
+                    template: "400".to_string(),
+                    error: e.to_string(),
+                })?,
         }
     };
 

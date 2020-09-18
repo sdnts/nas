@@ -67,7 +67,8 @@
         <li class="file-list__item" title="{{file.name}}">
           <div class="file-list__item__marker"></div>
           <div class="icon file-list__item__icon" data-icon="{{ lowercase file.category }}"></div>
-          <a class="file-list__item__name" href="/fs{{file.relative_path_str}}">{{file.name}}</a>
+          {{!-- <a class="file-list__item__name" href="/fs{{file.relative_path_str}}">{{file.name}}</a> --}}
+          <a class="file-list__item__name" href="./{{file.name}}">{{file.name}}</a>
           <span class="file-list__item__type">{{file.extension}}</span>
           <span class="file-list__item__size">{{filesize file.size_bytes}}</span>
 

@@ -27,7 +27,9 @@ impl NASConfig {
         // Create a directory for the root if it does not already exist
         let root_user_dir = crate::CONFIG.fs_root.join("root");
         if !root_user_dir.exists() {
-            fs::create_dir(&root_user_dir)?;
+            fs::create_dir(&root_user_dir).map_err(|e| NASError::IOError {
+                error: e.to_string(),
+            })?;
         }
 
         Ok(())

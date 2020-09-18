@@ -103,7 +103,7 @@ impl PartialOrd for AbsolutePath {
         let other_name = other.name().unwrap_or(OsString::from(""));
 
         let category = self.category().unwrap_or(NASFileCategory::Unknown);
-        let other_category = self.category().unwrap_or(NASFileCategory::Unknown);
+        let other_category = other.category().unwrap_or(NASFileCategory::Unknown);
 
         if matches!(category, NASFileCategory::Directory)
             && matches!(other_category, NASFileCategory::Directory)

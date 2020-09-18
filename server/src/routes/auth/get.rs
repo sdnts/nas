@@ -21,7 +21,10 @@ pub async fn get(identity: Identity, app_state: web::Data<AppState>) -> Result<i
                     redirect_url: None,
                 },
             )
-            .map_err(|_| NASError::TemplateRenderError { template: "auth" })?;
+            .map_err(|e| NASError::TemplateRenderError {
+                template: "auth".to_string(),
+                error: e.to_string(),
+            })?;
 
         return Ok(HttpResponse::Ok()
             .header(http::header::CONTENT_TYPE, "text/html;charset=utf-8")
@@ -38,7 +41,10 @@ pub async fn get(identity: Identity, app_state: web::Data<AppState>) -> Result<i
                 redirect_url: Some("/fs".to_string()),
             },
         )
-        .map_err(|_| NASError::TemplateRenderError { template: "auth" })?;
+        .map_err(|e| NASError::TemplateRenderError {
+            template: "auth".to_string(),
+            error: e.to_string(),
+        })?;
 
     Ok(HttpResponse::Ok()
         .header(http::header::CONTENT_TYPE, "text/html;charset=utf-8")

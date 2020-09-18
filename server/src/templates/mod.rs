@@ -1,4 +1,5 @@
 use serde::Serialize;
+use serde_json::Value;
 
 use crate::config::NASTheme;
 
@@ -23,7 +24,7 @@ pub struct FSPageParams {
     pub username: String,
     pub breadcrumbs: Vec<String>,
     pub parent_href: String,
-    pub files: Vec<String>,
+    pub files: Vec<Value>,
 }
 
 #[derive(Serialize)]

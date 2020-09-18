@@ -44,7 +44,10 @@ pub async fn post(
                     redirect_url: params.redirect_url.to_owned(),
                 },
             )
-            .map_err(|_| NASError::TemplateRenderError { template: "auth" })?;
+            .map_err(|e| NASError::TemplateRenderError {
+                template: "auth".to_string(),
+                error: e.to_string(),
+            })?;
 
         Ok(HttpResponse::Ok()
             .header(http::header::CONTENT_TYPE, "text/html;charset=utf-8")
@@ -60,7 +63,10 @@ pub async fn post(
                     redirect_url: None,
                 },
             )
-            .map_err(|_| NASError::TemplateRenderError { template: "auth" })?;
+            .map_err(|e| NASError::TemplateRenderError {
+                template: "auth".to_string(),
+                error: e.to_string(),
+            })?;
 
         Ok(HttpResponse::Ok()
             .header(http::header::CONTENT_TYPE, "text/html;charset=utf-8")

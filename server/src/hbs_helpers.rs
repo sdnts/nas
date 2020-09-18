@@ -28,7 +28,7 @@ pub fn filesize(
     ))?;
     if param.value().is_number() {
         let size = param.value().as_u64().ok_or(RenderError::new(
-            "Param `filesize` helper must be a positive number",
+            "Param to `filesize` helper must be a positive number",
         ))?;
 
         if size > 0 {
@@ -37,6 +37,9 @@ pub fn filesize(
 
         Ok(())
     } else {
-        Err(RenderError::new("Param `filesize` helper must be a number"))
+        dbg!(&param.value());
+        Err(RenderError::new(
+            "Param to `filesize` helper must be a number",
+        ))
     }
 }

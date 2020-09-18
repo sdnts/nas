@@ -35,7 +35,10 @@ pub async fn get(
                             redirect_url: None,
                         },
                     )
-                    .map_err(|_| NASError::TemplateRenderError { template: "auth" })?,
+                    .map_err(|e| NASError::TemplateRenderError {
+                        template: "auth".to_string(),
+                        error: e.to_string(),
+                    })?,
             ));
     }
 

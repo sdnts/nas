@@ -72,30 +72,33 @@ pub trait NASFile {
         let pathbuf = self.pathbuf();
         let extension = self.extension()?;
 
+        // Must convert to &str to be able to compare with ease
+        let extension = extension.to_str().ok_or(NASError::OsStrConversionError {
+            osstring: extension.to_owned(),
+        })?;
+
         if pathbuf.is_dir() {
             Ok(NASFileCategory::Directory)
         } else {
-            Ok(NASFileCategory::Unknown)
-            // match OsString::from(extension) {
-            //     OsString::from("mp3") => Ok(NASFileCategory::Audio),
+            match extension {
+                "mp3" => Ok(NASFileCategory::Audio),
+                "avi" => Ok(NASFileCategory::Video),
+                "mkv" => Ok(NASFileCategory::Video),
+                "mp4" => Ok(NASFileCategory::Video),
 
-            //     "avi" => Ok(NASFileCategory::Video),
-            //     "mkv" => Ok(NASFileCategory::Video),
-            //     "mp4" => Ok(NASFileCategory::Video),
+                "m3u8" => Ok(NASFileCategory::StreamPlaylist),
+                "ts" => Ok(NASFileCategory::StreamSegment),
 
-            //     "m3u8" => Ok(NASFileCategory::StreamPlaylist),
-            //     "ts" => Ok(NASFileCategory::StreamSegment),
+                "pdf" => Ok(NASFileCategory::Document),
+                "txt" => Ok(NASFileCategory::Document),
 
-            //     "pdf" => Ok(NASFileCategory::Document),
-            //     "txt" => Ok(NASFileCategory::Document),
+                "png" => Ok(NASFileCategory::Image),
+                "jpg" => Ok(NASFileCategory::Image),
+                "jpeg" => Ok(NASFileCategory::Image),
+                "webp" => Ok(NASFileCategory::Image),
 
-            //     "png" => Ok(NASFileCategory::Image),
-            //     "jpg" => Ok(NASFileCategory::Image),
-            //     "jpeg" => Ok(NASFileCategory::Image),
-            //     "webp" => Ok(NASFileCategory::Image),
-
-            //     _ => Ok(NASFileCategory::Unknown),
-            // }
+                _ => Ok(NASFileCategory::Unknown),
+            }
         }
     }
 }
