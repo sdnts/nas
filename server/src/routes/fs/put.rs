@@ -20,7 +20,7 @@ pub async fn put(
     let templates = &app_state.templates;
     let identity = identity.identity();
 
-    if let None = identity {
+    if identity.is_none() {
         return Ok(HttpResponse::Unauthorized()
             .header(http::header::CONTENT_TYPE, "text/html;charset=utf-8")
             .body(
@@ -59,7 +59,7 @@ pub async fn put(
     if renamed_pathbuf.exists() {
         // Rename behaviour differs with platform, so exit early
         Err(NASError::PathExistsError {
-            pathbuf: renamed_pathbuf.to_owned(),
+            pathbuf: renamed_pathbuf,
         }
         .into())
     } else {

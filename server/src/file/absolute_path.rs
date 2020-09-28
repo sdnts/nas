@@ -9,7 +9,7 @@ use crate::error::NASError;
 use crate::file::{NASFile, NASFileCategory, RelativePath};
 use crate::CONFIG;
 
-#[derive(Eq, Ord, Serialize, Deserialize, Debug)]
+#[derive(Eq, Serialize, Deserialize, Debug)]
 pub struct AbsolutePath {
     pathbuf: PathBuf,
 }
@@ -27,9 +27,7 @@ impl TryFrom<PathBuf> for AbsolutePath {
         if pathbuf.exists() {
             Ok(Self { pathbuf })
         } else {
-            Err(NASError::NonExistentPath {
-                pathbuf: pathbuf.to_owned(),
-            })
+            Err(NASError::NonExistentPath { pathbuf })
         }
     }
 }
@@ -97,10 +95,10 @@ impl PartialEq for AbsolutePath {
     }
 }
 
-impl PartialOrd for AbsolutePath {
-    fn partial_cmp(&self, other: &AbsolutePath) -> Option<Ordering> {
-        let name = self.name().unwrap_or(OsString::from(""));
-        let other_name = other.name().unwrap_or(OsString::from(""));
+impl Ord for AbsolutePath {
+    fn cmp(&self, other: &AbsolutePath) -> Ordering {
+        let name = self.name().unwrap_or_default();
+        let other_name = other.name().unwrap_or_default();
 
         let category = self.category().unwrap_or(NASFileCategory::Unknown);
         let other_category = other.category().unwrap_or(NASFileCategory::Unknown);
@@ -109,16 +107,22 @@ impl PartialOrd for AbsolutePath {
             && matches!(other_category, NASFileCategory::Directory)
         {
             // If both are directories, sort alphabetically
-            name.partial_cmp(&other_name)
+            name.cmp(&other_name)
         } else if matches!(category, NASFileCategory::Directory) {
             // If you are a directory, but the other isn't , you will always be above (less)
-            Some(Ordering::Less)
+            Ordering::Less
         } else if matches!(other_category, NASFileCategory::Directory) {
             // If other is a directory, but you aren't , you will always be below (greater)
-            Some(Ordering::Greater)
+            Ordering::Greater
         } else {
             // If neither is a directory, sort alphabetically
-            name.partial_cmp(&other_name)
+            name.cmp(&other_name)
         }
+    }
+}
+
+impl PartialOrd for AbsolutePath {
+    fn partial_cmp(&self, other: &AbsolutePath) -> Option<Ordering> {
+        Some(self.cmp(other))
     }
 }

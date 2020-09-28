@@ -32,7 +32,7 @@ pub async fn post(
     let user = User::login(&params.username, &password_hash);
 
     if let Ok(user) = user {
-        identity.remember(user.username.to_string());
+        identity.remember(user.username);
 
         let response_body = templates
             .render(

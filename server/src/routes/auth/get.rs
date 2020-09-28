@@ -10,7 +10,7 @@ pub async fn get(identity: Identity, app_state: web::Data<AppState>) -> Result<i
     let identity = identity.identity();
     let templates = &app_state.templates;
 
-    if let None = identity {
+    if identity.is_none() {
         let response_body = templates
             .render(
                 "auth",

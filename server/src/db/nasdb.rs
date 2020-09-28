@@ -44,7 +44,7 @@ impl NASDB {
             .map_err(|_| NASError::DBInitializationError)?;
         let root_user = users.next().map_err(|_| NASError::DBInitializationError)?;
 
-        if let None = root_user {
+        if root_user.is_none() {
             // Create a root user with password `nas`
             connection
                 .execute(

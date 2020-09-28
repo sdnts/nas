@@ -2,7 +2,7 @@ use actix_identity::Identity;
 use actix_web::{HttpResponse, Responder, Result};
 
 pub async fn delete(identity: Identity) -> Result<impl Responder> {
-    if let None = identity.identity() {
+    if identity.identity().is_none() {
         return Ok(HttpResponse::Ok().finish());
     }
 

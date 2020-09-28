@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use std::cmp::Ordering;
 use std::convert::TryFrom;
 use std::ffi::OsString;
 use std::path::PathBuf;
@@ -11,7 +10,7 @@ use crate::CONFIG;
 /// `RelativePath` exists only to be able to co-relate a fs/* path to a real file on the file system. It does not ACTUALLY point to the file
 /// It is not expected to be able to perform any real operations on the file itself via this struct.
 /// Convert to `AbsolutePath` to be able to do those things.
-#[derive(Ord, Eq, Serialize, Deserialize, Debug)]
+#[derive(Eq, Serialize, Deserialize, Debug)]
 pub struct RelativePath {
     pathbuf: PathBuf,
     username: String,
@@ -88,23 +87,5 @@ impl PartialEq for RelativePath {
     fn eq(&self, other: &RelativePath) -> bool {
         // If the relative pathbuf & the username are the same, the absolute paths will also be the same
         self.pathbuf == other.pathbuf && self.username == other.username
-    }
-}
-
-impl PartialOrd for RelativePath {
-    fn partial_cmp(&self, other: &RelativePath) -> Option<Ordering> {
-        let absolute_path = AbsolutePath::try_from(self);
-        let other_absolute_path = AbsolutePath::try_from(other);
-
-        if let Err(_) = absolute_path {
-            None
-        } else if let Err(_) = other_absolute_path {
-            None
-        } else {
-            let absolute_path = absolute_path.unwrap();
-            let other_absolute_path = other_absolute_path.unwrap();
-
-            absolute_path.partial_cmp(&other_absolute_path)
-        }
     }
 }

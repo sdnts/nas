@@ -19,7 +19,7 @@ pub async fn delete(
     let templates = &app_state.templates;
     let identity = identity.identity();
 
-    if let None = identity {
+    if identity.is_none() {
         return Ok(HttpResponse::Unauthorized()
             .header(http::header::CONTENT_TYPE, "text/html;charset=utf-8")
             .body(
@@ -50,13 +50,11 @@ pub async fn delete(
     let category = absolute_path.category()?;
     let pathbuf: PathBuf = absolute_path.into();
 
-    match category {
-        NASFileCategory::Directory => fs::remove_dir_all(&pathbuf)
-            .map_err(|_| NASError::PathDeleteError { pathbuf: pathbuf })?,
-        _ => {
-            fs::remove_file(&pathbuf).map_err(|_| NASError::PathDeleteError { pathbuf: pathbuf })
-        }?,
-    };
+    if let NASFileCategory::Directory = category {
+        fs::remove_dir_all(&pathbuf).map_err(|_| NASError::PathDeleteError { pathbuf })?;
+    } else {
+        fs::remove_file(&pathbuf).map_err(|_| NASError::PathDeleteError { pathbuf })?;
+    }
 
     Ok(HttpResponse::Ok()
         .header(http::header::CONTENT_TYPE, "text/html;charset=utf-8")

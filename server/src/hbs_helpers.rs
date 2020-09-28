@@ -8,10 +8,10 @@ pub fn lowercase(
     _: &mut RenderContext,
     out: &mut dyn Output,
 ) -> Result<(), RenderError> {
-    let param = h.param(0).ok_or(RenderError::new(
-        "Param 0 is required for `lowercase` helper.",
-    ))?;
-    let param = format!("{}", param.value().render());
+    let param = h
+        .param(0)
+        .ok_or_else(|| RenderError::new("Param 0 is required for `lowercase` helper."))?;
+    let param = param.value().render();
     out.write(&param.to_lowercase())?;
     Ok(())
 }
@@ -23,13 +23,13 @@ pub fn filesize(
     _: &mut RenderContext,
     out: &mut dyn Output,
 ) -> Result<(), RenderError> {
-    let param = h.param(0).ok_or(RenderError::new(
-        "Param 0 is required for `filesize` helper.",
-    ))?;
+    let param = h
+        .param(0)
+        .ok_or_else(|| RenderError::new("Param 0 is required for `filesize` helper."))?;
     if param.value().is_number() {
-        let size = param.value().as_u64().ok_or(RenderError::new(
-            "Param to `filesize` helper must be a positive number",
-        ))?;
+        let size = param.value().as_u64().ok_or_else(|| {
+            RenderError::new("Param to `filesize` helper must be a positive number")
+        })?;
 
         if size > 0 {
             out.write(&ByteSize::b(size).to_string())?;

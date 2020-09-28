@@ -20,7 +20,7 @@ pub async fn get(
     let identity = identity.identity();
     let templates = &app_state.templates;
 
-    if let None = identity {
+    if identity.is_none() {
         println!();
         return Ok(HttpResponse::Unauthorized()
             .header(http::header::CONTENT_TYPE, "text/html;charset=utf-8")

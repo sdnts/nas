@@ -22,7 +22,7 @@ pub async fn post(
     let identity = identity.identity();
     let templates = &app_state.templates;
 
-    if let None = identity {
+    if identity.is_none() {
         return Ok(HttpResponse::Unauthorized()
             .header(http::header::CONTENT_TYPE, "text/html;charset=utf-8")
             .body(
@@ -66,21 +66,22 @@ pub async fn post(
                 pathbuf: pathbuf.to_owned(),
             })?;
 
+        println!("Copying");
+
         io::copy(&mut &body.to_vec()[..], &mut file).map_err(|_| NASError::PathCreateError {
             pathbuf: pathbuf.to_owned(),
         })?;
 
+        println!("Copied");
+
         // If this is a video file, start generating stream segments
-        match category {
-            NASFileCategory::Video => {
-                thread::spawn(move || {
-                    streamgen::generate_stream_segments_for_path(
-                        &pathbuf,
-                        &AbsolutePath::user_fs_root(&username),
-                    )
-                });
-            }
-            _ => {}
+        if let NASFileCategory::Video = category {
+            thread::spawn(move || {
+                streamgen::generate_stream_segments_for_path(
+                    &pathbuf,
+                    &AbsolutePath::user_fs_root(&username),
+                )
+            });
         };
     }
 
