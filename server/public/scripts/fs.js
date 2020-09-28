@@ -28,7 +28,8 @@ const createFile = () => {
 
     request.addEventListener("load", function (e) {
       if (request.status !== 200) {
-        console.error("Something went wrong");
+        console.error("Something went wrong: ", e);
+        return
       }
       location.reload();
     });
@@ -76,11 +77,11 @@ const createDir = () => {
     fetch(`${location.pathname}/${e.target.value}`, {
       method: "POST",
     }).then((res) => {
-      if (res.status === 200) {
-        location.reload();
-      } else {
-        console.error("Something went wrong");
+      if (request.status !== 200) {
+        console.error("Something went wrong: ", e);
+        return
       }
+      location.reload();
     });
   newDirRow.appendChild(nameInput);
 

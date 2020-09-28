@@ -47,11 +47,8 @@ pub async fn post(
 
     // The NormalizePath middleware will add a trailing slash at the end of the path, so we must remove it
     let relative_path_str = strip_trailing_char(&path);
-    let relative_path = RelativePath::new(&relative_path_str, &username);
-    let absolute_path = AbsolutePath::try_from(&relative_path)?;
-
-    let category = absolute_path.category()?;
-    let pathbuf: PathBuf = absolute_path.into();
+    // Only get a pathbuf, not an AbsolutePath, because we know this path doesn't exist yet (We'll create it)
+    let pathbuf = AbsolutePath::user_fs_root(&username).join(relative_path_str);
 
     if body.is_empty() {
         // Create Dir at path
@@ -66,17 +63,17 @@ pub async fn post(
                 pathbuf: pathbuf.to_owned(),
             })?;
 
-        println!("Copying");
-
         io::copy(&mut &body.to_vec()[..], &mut file).map_err(|_| NASError::PathCreateError {
             pathbuf: pathbuf.to_owned(),
         })?;
 
-        println!("Copied");
+        let absolute_path = AbsolutePath::try_from(pathbuf)?;
+        let category = absolute_path.category()?;
 
         // If this is a video file, start generating stream segments
         if let NASFileCategory::Video = category {
             thread::spawn(move || {
+                let pathbuf: PathBuf = absolute_path.into();
                 streamgen::generate_stream_segments_for_path(
                     &pathbuf,
                     &AbsolutePath::user_fs_root(&username),

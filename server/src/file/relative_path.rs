@@ -31,6 +31,7 @@ impl RelativePath {
     }
 }
 
+// Cast AbsolutePath -> RelativePath
 impl TryFrom<AbsolutePath> for RelativePath {
     type Error = NASError;
 
@@ -66,6 +67,7 @@ impl TryFrom<AbsolutePath> for RelativePath {
     }
 }
 
+// Cast RelativePath -> OsString
 impl From<&RelativePath> for OsString {
     fn from(path: &RelativePath) -> OsString {
         path.pathbuf.as_os_str().to_os_string()

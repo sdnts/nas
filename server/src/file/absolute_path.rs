@@ -20,6 +20,7 @@ impl AbsolutePath {
     }
 }
 
+// Cast PathBuf -> AbsolutePath
 impl TryFrom<PathBuf> for AbsolutePath {
     type Error = NASError;
 
@@ -32,6 +33,7 @@ impl TryFrom<PathBuf> for AbsolutePath {
     }
 }
 
+// Cast &str -> AbsolutePath
 impl TryFrom<&str> for AbsolutePath {
     type Error = NASError;
 
@@ -41,6 +43,7 @@ impl TryFrom<&str> for AbsolutePath {
     }
 }
 
+// Cast &OsString -> AbsolutePath
 impl TryFrom<&OsString> for AbsolutePath {
     type Error = NASError;
 
@@ -52,6 +55,7 @@ impl TryFrom<&OsString> for AbsolutePath {
 
 // `impl From<AbsolutePath> for String` and `impl From<AbsolutePath> for &str` do not exist because it is not guaranteed that paths will be valid UTF8
 
+// Cast &RelativePath -> AbsolutePath
 impl TryFrom<&RelativePath> for AbsolutePath {
     type Error = NASError;
 
@@ -71,6 +75,7 @@ impl TryFrom<&RelativePath> for AbsolutePath {
     }
 }
 
+// Cast AbsolutePath -> PathBuf
 impl From<AbsolutePath> for PathBuf {
     fn from(absolute_path: AbsolutePath) -> PathBuf {
         absolute_path.pathbuf
