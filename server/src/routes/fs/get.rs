@@ -57,14 +57,6 @@ pub async fn get(
 
                 let pathbuf: PathBuf = absolute_path.into();
 
-                let parent_pathbuf: PathBuf = pathbuf
-                    .parent()
-                    .ok_or(NASError::ParentPathResolutionError {
-                        pathbuf: pathbuf.to_owned(),
-                    })?
-                    .into();
-                let parent_href = format!("/fs/{}", parent_pathbuf.display());
-
                 let contents = fs::read_dir(&pathbuf).map_err(|_| NASError::PathReadError {
                     pathbuf: pathbuf.to_owned(),
                 })?;
@@ -101,11 +93,14 @@ pub async fn get(
 
                         let size_bytes = file.size_bytes()?;
 
+                        let href = format!("/fs/{}/{}/", relative_path, name);
+
                         Ok(json!({
                                 "name": name,
                                 "category": category,
                                 "extension":extension,
                                 "size_bytes": size_bytes,
+                                "href": href
                             }
                         ))
                     })
@@ -118,7 +113,6 @@ pub async fn get(
                             theme: CONFIG.theme.clone(),
                             username,
                             breadcrumbs,
-                            parent_href,
                             files,
                         },
                     )

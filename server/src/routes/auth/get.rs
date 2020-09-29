@@ -38,7 +38,7 @@ pub async fn get(identity: Identity, app_state: web::Data<AppState>) -> Result<i
                 theme: CONFIG.theme.clone(),
                 message: None,
                 logged_in: true,
-                redirect_url: Some("/fs".to_string()),
+                redirect_url: Some("/fs/".to_string()),
             },
         )
         .map_err(|e| NASError::TemplateRenderError {

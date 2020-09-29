@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
 use std::ffi::OsString;
 use std::path::PathBuf;
+use std::{fmt, fmt::Display, fmt::Formatter};
 
 use crate::error::NASError;
 use crate::file::AbsolutePath;
@@ -89,5 +90,11 @@ impl PartialEq for RelativePath {
     fn eq(&self, other: &RelativePath) -> bool {
         // If the relative pathbuf & the username are the same, the absolute paths will also be the same
         self.pathbuf == other.pathbuf && self.username == other.username
+    }
+}
+
+impl Display for RelativePath {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.pathbuf.display())
     }
 }

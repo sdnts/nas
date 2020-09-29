@@ -23,7 +23,6 @@ pub struct FSPageParams {
     pub theme: NASTheme,
     pub username: String,
     pub breadcrumbs: Vec<String>,
-    pub parent_href: String,
     pub files: Vec<Value>,
 }
 

@@ -55,20 +55,20 @@
     </section>
 
     <section id="content">
+      {{!-- <base href="http://localhost/mywebsite/" /> --}}
       <ul id="file-list">
 
         <li class="file-list__item" title="Parent">
           <div class="file-list__item__marker"></div>
           <div class="icon file-list__item__icon" data-icon="none"></div>
-          <a class="file-list__item__name" href="{{parent_href}}">..</a>
+          <a class="file-list__item__name" href="../">..</a>
         </li>
 
         {{#each files as |file|}}
         <li class="file-list__item" title="{{file.name}}">
           <div class="file-list__item__marker"></div>
           <div class="icon file-list__item__icon" data-icon="{{ lowercase file.category }}"></div>
-          {{!-- <a class="file-list__item__name" href="/fs{{file.relative_path_str}}">{{file.name}}</a> --}}
-          <a class="file-list__item__name" href="./{{file.name}}">{{file.name}}</a>
+          <a class="file-list__item__name" href="{{file.href}}">{{file.name}}</a>
           <span class="file-list__item__type">{{file.extension}}</span>
           <span class="file-list__item__size">{{filesize file.size_bytes}}</span>
 

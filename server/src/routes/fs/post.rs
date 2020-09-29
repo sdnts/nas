@@ -8,7 +8,7 @@ use std::thread;
 
 use crate::app_state::AppState;
 use crate::error::NASError;
-use crate::file::{AbsolutePath, NASFile, NASFileCategory, RelativePath};
+use crate::file::{AbsolutePath, NASFile, NASFileCategory};
 use crate::templates::AuthPageParams;
 use crate::utils::strip_trailing_char;
 use crate::CONFIG;
